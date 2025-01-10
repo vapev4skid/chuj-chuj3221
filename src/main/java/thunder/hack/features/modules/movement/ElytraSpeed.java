@@ -39,13 +39,14 @@ public class ElytraSpeed extends Module {
     private final Setting<SpeedMethod> speedMethod = new Setting<>("Speed Method", SpeedMethod.GRIM);
     private final Setting<Float> speedMultiplier = new Setting<>("Speed Multiplier", 1.5f, 0.1f, 5.0f, v -> speedMethod.getValue() != SpeedMethod.PACKET);
     private final Setting<Float> maxSpeed = new Setting<>("Max Speed", 5.0f, 0.1f, 20.0f, v -> speedMethod.getValue() == SpeedMethod.CUSTOM);
+    private final Setting<Float> minDistance = new Setting<>("Min Distance", 2.0f, 0.1f, 10.0f);
     private final Setting<Boolean> useTimer = new Setting<>("Use Timer", false);
     private final Setting<Float> timerSpeed = new Setting<>("Timer Speed", 1.0f, 0.1f, 10.0f, v -> useTimer.getValue());
     private final Setting<Boolean> autoDisable = new Setting<>("AutoDisable", true);
     private final Setting<Integer> disableTime = new Setting<>("Disable Time", 5, 1, 30);
 
-    private final Timer fireworkTimer = new Timer();
     private final Timer autoDisableTimer = new Timer();
+    private final Timer fireworkTimer = new Timer();
 
     public ElytraSpeed() {
         super("ElytraSpeed", Category.MOVEMENT);
@@ -88,25 +89,36 @@ public class ElytraSpeed extends Module {
     @EventHandler
     public void modifyVelocity(EventPlayerTravel e) {
         if (speedMethod.getValue() == SpeedMethod.GRIM) {
-            if (!e.isPre() && mc.player.isFallFlying()) {
-                Vec3d velocity = mc.player.getVelocity();
-                double currentSpeed = Math.sqrt(velocity.x * velocity.x + velocity.z * velocity.z);
-
-                double targetSpeed = Math.max(33.0, currentSpeed + 0.5);
-                double scaleFactor = targetSpeed / currentSpeed;
-
-                if (scaleFactor > 1.0) {
-                    mc.player.setVelocity(
-                            velocity.x * scaleFactor,
-                            velocity.y,
-                            velocity.z * scaleFactor
+            if (bypass.getValue() == BypassMode.Grim && !e.isPre() && ThunderHack.core.getSetBackTime() > 1000) {
+                if (mc.player.isFallFlying()) {
+                    Vec3d currentVelocity = mc.player.getVelocity();
+                    Vec3d motionVector = new Vec3d(
+                            currentVelocity.x * speedMultiplier.getValue(),
+                            currentVelocity.y,
+                            currentVelocity.z * speedMultiplier.getValue()
                     );
-                }
 
-                if (useTimer.getValue()) {
-                    ThunderHack.TICK_TIMER = (float) Math.min(1.0 + (currentSpeed - 33.0) / 10.0, timerSpeed.getValue());
+                    if (motionVector.lengthSquared() > maxSpeed.getValue() * maxSpeed.getValue()) {
+                        double scaleFactor = maxSpeed.getValue() / motionVector.length();
+                        motionVector = new Vec3d(
+                                motionVector.x * scaleFactor,
+                                motionVector.y,
+                                motionVector.z * scaleFactor
+                        );
+                    }
+
+                    mc.player.setVelocity(motionVector);
+
                 }
             }
+        } else if (speedMethod.getValue() == SpeedMethod.PACKET) {
+            Vec3d packetVelocity = new Vec3d(
+                    mc.player.getVelocity().x * speedMultiplier.getValue(),
+                    mc.player.getVelocity().y,
+                    mc.player.getVelocity().z * speedMultiplier.getValue()
+            );
+            mc.player.setVelocity(packetVelocity);
+            sendVelocityPacket(packetVelocity);
         } else if (speedMethod.getValue() == SpeedMethod.CUSTOM) {
             Vec3d currentVelocity = mc.player.getVelocity();
             double currentSpeed = Math.sqrt(
@@ -121,6 +133,7 @@ public class ElytraSpeed extends Module {
                         currentVelocity.y,
                         currentVelocity.z * scaleFactor
                 );
+                logNotification("Speed capped to Max Speed", Notification.Type.WARNING);
             } else {
                 currentVelocity = new Vec3d(
                         currentVelocity.x * speedMultiplier.getValue(),
@@ -131,8 +144,11 @@ public class ElytraSpeed extends Module {
 
             mc.player.setVelocity(currentVelocity);
         }
-    }
 
+        if (useTimer.getValue()) {
+            ThunderHack.TICK_TIMER = timerSpeed.getValue();
+        }
+    }
 
     private boolean hasMaxElytraSpeed() {
         double speed = Math.sqrt(mc.player.getVelocity().x * mc.player.getVelocity().x + mc.player.getVelocity().z * mc.player.getVelocity().z);

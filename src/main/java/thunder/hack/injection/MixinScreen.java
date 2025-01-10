@@ -60,8 +60,8 @@ public abstract class MixinScreen {
             DialogScreen dialogScreen = new DialogScreen(
                     TextureStorage.questionPic,
                     isRu() ? "Обнаружен конфиг!" : "Config detected!",
-                    isRu() ? "Ты действительно хочешь загрузить " + fileName + "?" : "Are you sure you want to load " + fileName + "?",
-                    isRu() ? "Да" : "Yes", 
+                    isRu() ? "Ты действительно хочешь загрузить " + fileName + "?" : "Czy chcesz załadować config " + fileName + "?",
+                    isRu() ? "Да" : "Yes",
                     isRu() ? "Нет" : "No",
                     () -> {
                         Managers.MODULE.onUnload("none");
