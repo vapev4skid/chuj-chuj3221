@@ -5,6 +5,7 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -25,6 +26,7 @@ public abstract class TrapModule extends PlaceModule {
     protected final Setting<TrapMode> trapMode = new Setting<>("Trap Mode", TrapMode.Full);
     protected final Setting<Boolean> noPost = new Setting<>("NoPost", false);
     protected final Setting<Boolean> noFlyPlace = new Setting<>("NoFlyPlace", false);
+    protected final Setting<Float> motionThreshold = new Setting<>("Motion Threshold", 0.01f, 0.001f, 0.1f);
 
     private int delay;
     protected PlayerEntity target;
@@ -46,22 +48,27 @@ public abstract class TrapModule extends PlaceModule {
     }
 
     @EventHandler
-    @SuppressWarnings("unused")
     private void onSync(EventSync event) {
         if (needNewTarget()) {
             target = getTarget();
             return;
         }
 
-        if (noPost.getValue()) {
+        if (noPost.getValue() && target != null && mc.player != null) {
             BlockPos targetBlock = getBlockToPlace();
-            if (targetBlock != null && mc.player != null) {
+            if (targetBlock != null) {
                 BlockHitResult result = InteractionUtility.getPlaceResult(targetBlock, interact.getValue(), true);
                 if (result != null) {
                     Vec3d precisePoint = closerToCenter(result.getPos(), mc.player.getPos());
                     float[] angle = InteractionUtility.calculateAngle(precisePoint);
-                    mc.player.setYaw(angle[0]);
-                    mc.player.setPitch(angle[1]);
+
+                    float yawDelta = MathHelper.wrapDegrees(angle[0] - mc.player.getYaw());
+                    float pitchDelta = MathHelper.wrapDegrees(angle[1] - mc.player.getPitch());
+
+                    if (Math.abs(yawDelta) > motionThreshold.getValue() || Math.abs(pitchDelta) > motionThreshold.getValue()) {
+                        mc.player.setYaw(mc.player.getYaw() + yawDelta);
+                        mc.player.setPitch(mc.player.getPitch() + pitchDelta);
+                    }
                 }
             }
         }
@@ -76,12 +83,22 @@ public abstract class TrapModule extends PlaceModule {
             return;
         }
 
-        InteractionUtility.Rotate rotateMod = placeTiming.is(PlaceTiming.Vanilla) && !rotate.is(InteractionUtility.Rotate.None) ? InteractionUtility.Rotate.None : rotate.getValue();
+        InteractionUtility.Rotate rotateMod = placeTiming.is(PlaceTiming.Vanilla) && !rotate.is(InteractionUtility.Rotate.None)
+                ? InteractionUtility.Rotate.None
+                : rotate.getValue();
 
         if (noFlyPlace.getValue() && placeTiming.getValue() == PlaceTiming.Default) {
             BlockPos targetBlock = getBlockToPlace();
             if (targetBlock != null && mc.world != null) {
-                if (InteractionUtility.isBlockAboveGround(targetBlock)) {
+                if (!InteractionUtility.isBlockAboveGround(targetBlock)) {
+                    Vec3d blockCenter = targetBlock.toCenterPos();
+                    Vec3d playerEyePos = mc.player.getEyePos();
+
+                    float[] correctedAngle = InteractionUtility.calculateAngle(blockCenter);
+
+                    mc.player.setYaw(correctedAngle[0]);
+                    mc.player.setPitch(correctedAngle[1]);
+                } else {
                     return;
                 }
             }
