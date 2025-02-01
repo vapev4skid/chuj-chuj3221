@@ -37,7 +37,7 @@ public class PlayerOnlineList extends Module {
                     client.player.sendMessage(
                             Text.literal(" | ").formatted(Formatting.GREEN)
                                     .append(Text.literal("Nick: ").formatted(Formatting.WHITE))
-                                    .append(Text.literal("Hide").formatted(Formatting.GREEN))
+                                    .append(Text.literal(maskNick(player.nick)).formatted(Formatting.GREEN))
                                     .append(Text.literal(", ").formatted(Formatting.WHITE))
                                     .append(Text.literal("Server: ").formatted(Formatting.WHITE))
                                     .append(Text.literal(player.server).formatted(Formatting.GREEN))
@@ -81,11 +81,12 @@ public class PlayerOnlineList extends Module {
                 totalPlayers = response.get("total_players").getAsInt();
                 response.getAsJsonArray("users").forEach(element -> {
                     JsonObject user = element.getAsJsonObject();
+                    String nick = user.get("nick").getAsString();
                     String server = user.get("server").getAsString();
                     String config = user.get("config").getAsString();
                     long timestamp = user.get("timestamp").getAsLong();
 
-                    onlinePlayers.add(new PlayerInfo( server, config, timestamp));
+                    onlinePlayers.add(new PlayerInfo(nick, server, config, timestamp));
                 });
             }
         } catch (Exception e) {
@@ -93,11 +94,17 @@ public class PlayerOnlineList extends Module {
         }
     }
 
+    private static String maskNick(String nick) {
+        if (nick == null || nick.isEmpty()) return "*****";
+        return nick.charAt(0) + "*****";
+    }
+
     public static class PlayerInfo {
         public String nick, server, config;
         public long timestamp;
 
-        public PlayerInfo(String server, String config, long timestamp) {
+        public PlayerInfo(String nick, String server, String config, long timestamp) {
+            this.nick = nick;
             this.server = server;
             this.config = config;
             this.timestamp = timestamp;
