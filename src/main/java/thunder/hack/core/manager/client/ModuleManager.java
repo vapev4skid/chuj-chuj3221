@@ -5,7 +5,6 @@ import net.minecraft.client.util.math.MatrixStack;
 import org.lwjgl.glfw.GLFW;
 import thunder.hack.ThunderHack;
 import thunder.hack.core.manager.IManager;
-import thunder.hack.features.modules.movement.AntiAimMe;
 import thunder.hack.gui.clickui.ClickGUI;
 import thunder.hack.gui.font.FontRenderers;
 import thunder.hack.features.hud.HudElement;
@@ -60,6 +59,7 @@ public class ModuleManager implements IManager {
     public static PortalGodMode portalGodMode = new PortalGodMode();
     public static OptifineCapes optifineCapes = new OptifineCapes();
     public static Notifications notifications = new Notifications();
+    public static AntiAim antiAim = new AntiAim();
     public static NoEntityTrace noEntityTrace = new NoEntityTrace();
     public static MessageAppend messageAppend = new MessageAppend();
     public static PlayerOnlineList playerOnlineList = new PlayerOnlineList();
@@ -77,6 +77,7 @@ public class ModuleManager implements IManager {
     public static PVPResources pvpResources = new PVPResources();
     public static NoServerSlot noServerSlot = new NoServerSlot();
     public static NoCameraClip noCameraClip = new NoCameraClip();
+    public static ChinaHat chinaHat = new ChinaHat();
     public static ItemScroller itemScroller = new ItemScroller();
     public static HitParticles hitParticles = new HitParticles();
     public static ElytraRecast elytraRecast = new ElytraRecast();
@@ -93,6 +94,7 @@ public class ModuleManager implements IManager {
     public static StashLogger stashLogger = new StashLogger();
     public static FastLatency fastLatency = new FastLatency();
     public static PearlChaser pearlChaser = new PearlChaser();
+    public static PingSpoofTest pingSpoofTest = new PingSpoofTest();
     public static WorldTweaks worldTweaks = new WorldTweaks();
     public static VisualRange visualRange = new VisualRange();
     public static Speedometer speedometer = new Speedometer();
@@ -204,6 +206,7 @@ public class ModuleManager implements IManager {
     public static KillFeed killFeed = new KillFeed();
     public static AutoWalk autoWalk = new AutoWalk();
     public static AutoSign autoSign = new AutoSign();
+//    public static AutoConfig autoConfig = new AutoConfig(); // Beta, only customers
     public static BlockESP blockESP = new BlockESP();
     public static SafeWalk safeWalk = new SafeWalk();
     public static Windows windows = new Windows();
@@ -230,7 +233,7 @@ public class ModuleManager implements IManager {
     public static AutoWeb autoWeb = new AutoWeb();
 //    public static Debuger debuger = new Debuger();
     public static AntiWeb antiWeb = new AntiWeb();
-    public static AntiAimMe antiAim = new AntiAimMe();
+//    public static FakeLag fakeLag = new FakeLag();
     public static AntiBot antiBot = new AntiBot();
     public static AutoSex autoSex = new AutoSex();
     public static Tracers tracers = new Tracers();
@@ -260,7 +263,6 @@ public class ModuleManager implements IManager {
     public static Timer timer = new Timer();
     public static Regen regen = new Regen();
     public static Speed speed = new Speed();
-
     public static Reach reach = new Reach();
     public static Radar radar = new Radar();
     public static Nuker nuker = new Nuker();

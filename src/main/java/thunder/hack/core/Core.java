@@ -37,6 +37,8 @@ import thunder.hack.utility.render.Render2DEngine;
 import thunder.hack.utility.render.Render3DEngine;
 import thunder.hack.utility.render.TextureStorage;
 import thunder.hack.utility.render.animation.CaptureMark;
+import thunder.hack.utility.render.animation.Exploitcore1;
+import thunder.hack.utility.render.animation.Exploitcore2;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -115,6 +117,8 @@ public final class Core {
         if (fullNullCheck()) return;
         ModuleManager.timer.onEntitySync();
         CaptureMark.tick();
+        Exploitcore1.tick();
+        Exploitcore2.tick();
         Render3DEngine.updateTargetESP();
     }
 

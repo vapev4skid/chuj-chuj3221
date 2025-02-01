@@ -24,7 +24,7 @@ public class ChatSpammer extends Module {
             String message = spamText.getValue();
 
             if (antiDetected.getValue()) {
-                message =  message + " " + getRandomString(8);
+                message =  message + " [" + getRandomString(8) + "]";
             }
 
             mc.player.networkHandler.sendChatMessage(message);

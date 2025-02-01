@@ -15,55 +15,78 @@ public class WaterSpeed extends Module {
     }
 
     public final Setting<Mode> mode = new Setting<>("Mode", Mode.DolphinGrace);
-
     private float acceleration = 0f;
 
     public enum Mode {
-        DolphinGrace, Intave, CancelResurface, FunTimeNew
+        DolphinGrace, Intave, CancelResurface, FunTimeNew, Velocity
     }
 
     @Override
     public void onUpdate() {
         if (mode.getValue() == Mode.DolphinGrace) {
-             if(mc.player.isSwimming()) mc.player.addStatusEffect(new StatusEffectInstance(StatusEffects.DOLPHINS_GRACE, 2, 2));
-             else mc.player.removeStatusEffect(StatusEffects.DOLPHINS_GRACE);
+            if (mc.player.isSwimming())
+                mc.player.addStatusEffect(new StatusEffectInstance(StatusEffects.DOLPHINS_GRACE, 2, 2));
+            else
+                mc.player.removeStatusEffect(StatusEffects.DOLPHINS_GRACE);
         }
     }
 
     @EventHandler
     public void onMove(EventMove e) {
         if (mode.getValue() == Mode.Intave) {
-            if (mc.player.isSwimming()) {
-                double[] dirSpeed = MovementUtility.forward(acceleration / (mc.player.input.movementSideways != 0 ? 2.2f : 2f));
-                e.setX(e.getX() + dirSpeed[0]);
-                e.setZ(e.getZ() + dirSpeed[1]);
-                e.cancel();
-                acceleration += 0.05f;
-                acceleration = MathUtility.clamp(acceleration, 0f, 1f);
-            } else acceleration = 0f;
-            if (!MovementUtility.isMoving()) acceleration = 0f;
+            handleIntaveMode(e);
+        } else if (mode.getValue() == Mode.FunTimeNew) {
+            handleFunTimeNewMode(e);
+        } else if (mode.getValue() == Mode.Velocity) {
+            handleVelocityMode(e);
         }
+    }
 
-        if (mode.getValue() == Mode.FunTimeNew) {
-            if (mc.player.isSwimming()) {
-                mc.player.input.movementSideways = 0;
-                double[] dirSpeed = MovementUtility.forward(acceleration / 6.3447f);
-                e.setX(e.getX() + dirSpeed[0]);
-                e.setZ(e.getZ() + dirSpeed[1]);
-                e.cancel();
+    private void handleIntaveMode(EventMove e) {
+        if (mc.player.isSwimming()) {
+            double[] dirSpeed = MovementUtility.forward(acceleration / (mc.player.input.movementSideways != 0 ? 2.2f : 2f));
+            e.setX(e.getX() + dirSpeed[0]);
+            e.setZ(e.getZ() + dirSpeed[1]);
+            e.cancel();
+            acceleration += 0.05f;
+            acceleration = MathUtility.clamp(acceleration, 0f, 0.1f);
+        } else acceleration = 0f;
+        if (!MovementUtility.isMoving()) acceleration = 0f;
+    }
 
-                if(Math.abs(mc.player.getYaw() - mc.player.prevYaw) > 3) acceleration -= 0.1f;
-                else acceleration += 0.015f;
+    private void handleFunTimeNewMode(EventMove e) {
+        if (mc.player.isSwimming()) {
+            mc.player.input.movementSideways = 0;
+            double[] dirSpeed = MovementUtility.forward(acceleration / 6.3447f);
+            e.setX(e.getX() + dirSpeed[0]);
+            e.setZ(e.getZ() + dirSpeed[1]);
+            e.cancel();
 
-                acceleration = MathUtility.clamp(acceleration, 0f, 1f);
-            } else acceleration = 0f;
-            if (!MovementUtility.isMoving() || mc.player.horizontalCollision || mc.player.verticalCollision) acceleration = 0f;
+            if (Math.abs(mc.player.getYaw() - mc.player.prevYaw) > 3)
+                acceleration -= 0.01f;
+            else
+                acceleration += 0.005f;
+
+            acceleration = MathUtility.clamp(acceleration, 0f, 1f);
+        } else acceleration = 0f;
+        if (!MovementUtility.isMoving() || mc.player.horizontalCollision || mc.player.verticalCollision)
+            acceleration = 0f;
+    }
+
+    private void handleVelocityMode(EventMove e) {
+        if (mc.player.isTouchingWater() && !mc.player.isSwimming()) {
+            double velocityFactor = 0.1;
+            double yaw = Math.toRadians(mc.player.getYaw());
+            e.setX(e.getX() + (-Math.sin(yaw) * velocityFactor));
+            e.setZ(e.getZ() + (Math.cos(yaw) * velocityFactor));
+            e.cancel();
         }
     }
 
     @Override
     public void onDisable() {
-        if (mode.getValue() == Mode.DolphinGrace)
+        if (mode.getValue() == Mode.DolphinGrace) {
             mc.player.removeStatusEffect(StatusEffects.DOLPHINS_GRACE);
+        }
     }
 }

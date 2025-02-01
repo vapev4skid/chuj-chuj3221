@@ -9,6 +9,7 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.BowItem;
 import net.minecraft.network.packet.c2s.play.PlayerInteractItemC2SPacket;
 import net.minecraft.util.Hand;
+import net.minecraft.util.math.Box;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import org.jetbrains.annotations.NotNull;
@@ -24,6 +25,7 @@ import thunder.hack.utility.math.PredictUtility;
 import thunder.hack.utility.render.Render2DEngine;
 import thunder.hack.utility.render.Render3DEngine;
 
+import java.awt.*;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -48,6 +50,8 @@ public final class AimBot extends Module {
     private final Setting<Integer> fov = new Setting<>("FOV", 65, 10, 360, v -> mode.getValue() == Mode.CSAim);
     private final Setting<Integer> predictTicks = new Setting<>("PredictTicks", 2, 0, 20, v -> mode.getValue() == Mode.BowAim);
     private final Setting<Bone> part = new Setting<>("Bone", Bone.Head, v -> mode.getValue() == Mode.CSAim);
+    private final Setting<Boolean> noWall = new Setting<>("NoWall", true, v -> mode.getValue() == Mode.BowAim);
+    private final Setting<Boolean> render3D = new Setting<>("Render3D", true, v -> mode.getValue() == Mode.BowAim);
 
     private Entity target;
 
@@ -169,6 +173,7 @@ public final class AimBot extends Module {
             return;
         }
 
+
         if (target != null && (mc.player.canSee(target) || ignoreWalls.getValue())) {
             if (rotation.getValue() == Rotation.Client) {
                 mc.player.setYaw((float) Render2DEngine.interpolate(mc.player.prevYaw, rotationYaw, Render3DEngine.getTickDelta()));
@@ -265,6 +270,7 @@ public final class AimBot extends Module {
         if (!(entity instanceof PlayerEntity pl)) return true;
         if (entity == mc.player) return true;
         if (entity.isInvisible() && ignoreInvisible.getValue()) return true;
+        if (noWall.getValue() && !mc.player.canSee(entity)) return true;
         if (Managers.FRIEND.isFriend(pl)) return true;
         if (Math.abs(getYawToEntityNew(entity)) > fov.getValue()) return true;
         if (pl.getTeamColorValue() == mc.player.getTeamColorValue() && ignoreTeam.getValue() && mc.player.getTeamColorValue() != 16777215)
@@ -282,6 +288,9 @@ public final class AimBot extends Module {
         float yaw1 = (float) (StrictMath.atan2(zDist, xDist) * 180.0 / 3.141592653589793) - 90.0f;
         return yaw + wrapDegrees(yaw1 - yaw);
     }
+
+
+
 
     private Vec3d getResolvedPos(@NotNull Entity pl) {
         return new Vec3d(pl.getX() + (pl.getX() - pl.prevX) * predict.getValue(), pl.getY(), pl.getZ() + (pl.getZ() - pl.prevZ) * predict.getValue());

@@ -20,7 +20,7 @@ public class WorldTweaks extends Module {
     public static final Setting<Integer> fogEnd = new Setting<>("FogEnd", 64, 10, 256).addToGroup(fogModify);
     public static final Setting<ColorSetting> fogColor = new Setting<>("FogColor", new ColorSetting(new Color(0xA900FF))).addToGroup(fogModify);
     public final Setting<Boolean> ctime = new Setting<>("ChangeTime", false);
-    public final Setting<Integer> ctimeVal = new Setting<>("Time", 21, 0, 23);
+    public final Setting<Integer> ctimeVal = new Setting<>("Time", 21, 0, 50);
 
     long oldTime;
 

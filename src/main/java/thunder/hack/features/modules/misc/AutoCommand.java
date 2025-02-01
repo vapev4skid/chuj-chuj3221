@@ -17,6 +17,7 @@ public class AutoCommand extends Module {
     @Override
     public void onEnable() {
         mc.player.networkHandler.sendCommand(command.getValue());
+        disable();
         timer.reset();
     }
 

@@ -9,7 +9,7 @@ import thunder.hack.setting.Setting;
 import thunder.hack.utility.Timer;
 
 public class KillCommand extends Module {
-    private final Setting<String> commandTemplate = new Setting<>("CommandTemplate", "msg %s LLLL dsc.gg/exploitcore najlepszy komar + speed LLL");
+    private final Setting<String> commandTemplate = new Setting<>("CommandTemplate", "msg %s L dsc.gg/mdpstresser najlepsza stressarka + bombamod LLL");
     private final Setting<Boolean> repeat = new Setting<>("Repeat", false);
     private final Setting<Integer> repeatCount = new Setting<>("RepeatCount", 1, 1, 10, v -> repeat.getValue());
     private final Setting<Integer> repeatDelay = new Setting<>("RepeatDelay", 500, 100, 5000, v -> repeat.getValue());

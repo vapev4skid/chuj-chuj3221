@@ -15,6 +15,8 @@ public final class TextureStorage {
     public static final Identifier bubble = Identifier.of("thunderhack", "textures/particles/hitbubble.png");
     public static final Identifier default_circle = Identifier.of("thunderhack", "textures/particles/circle.png");
     public static final Identifier container = Identifier.of("thunderhack", "textures/hud/elements/container.png");
+    public static final Identifier exploitcore1 = Identifier.of("thunderhack", "textures/hud/elements/exploitcorev1.png");
+    public static final Identifier exploitcore2 = Identifier.of("thunderhack", "textures/hud/elements/exploitcorev2.png");
     public static final Identifier guiArrow = Identifier.of("thunderhack", "textures/gui/elements/arrow.png");
     public static final Identifier Gear = Identifier.of("thunderhack", "textures/gui/headers/client.png");
     public static final Identifier candle = Identifier.of("thunderhack", "textures/hud/elements/candle.png");
