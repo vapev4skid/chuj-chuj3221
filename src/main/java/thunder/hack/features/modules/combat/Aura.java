@@ -55,6 +55,7 @@ import thunder.hack.utility.render.Render3DEngine;
 import thunder.hack.utility.render.animation.CaptureMark;
 import thunder.hack.utility.render.animation.Exploitcore1;
 import thunder.hack.utility.render.animation.Exploitcore2;
+import thunder.hack.utility.render.animation.Exploitcore3;
 
 import java.util.Comparator;
 import java.util.List;
@@ -607,6 +608,7 @@ public class Aura extends Module {
             case NurikZapen -> CaptureMark.render(target);
             case Exploitcorev1 -> Exploitcore1.render(target);
             case Exploitcorev2 -> Exploitcore2.render(target);
+            case Exploitcorev2mini -> Exploitcore3.render(target);
             case ThunderHackV2 ->
                     Render3DEngine.renderGhosts(espLength.getValue(), espFactor.getValue(), espShaking.getValue(), espAmplitude.getValue(), target);
             case ThunderHack -> Render3DEngine.drawTargetEsp(stack, target);
@@ -939,7 +941,7 @@ public class Aura extends Module {
     }
 
     public enum ESP {
-        Off, ThunderHack, NurikZapen, CelkaPasta, ThunderHackV2, Exploitcorev1, Exploitcorev2
+        Off, ThunderHack, NurikZapen, CelkaPasta, ThunderHackV2, Exploitcorev1, Exploitcorev2, Exploitcorev2mini
     }
 
     public enum AccelerateOnHit {

@@ -69,7 +69,6 @@ public class AutoTool extends Module {
 
             if (block == Blocks.AIR) return -1;
 
-            // Wybór narzędzia w zależności od rodzaju bloku
             if (mc.world.getBlockState(pos).isIn(BlockTags.LOGS) || mc.world.getBlockState(pos).isIn(BlockTags.PLANKS)) {
                 if (stack.getItem() instanceof AxeItem && destroySpeed > CurrentFastest) {
                     CurrentFastest = destroySpeed;

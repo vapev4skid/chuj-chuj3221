@@ -12,7 +12,7 @@ import java.awt.*;
 
 public class WorldTweaks extends Module {
     public WorldTweaks() {
-        super("WorldTweaks", Category.RENDER);
+        super("TimeChanger", Category.RENDER);
     }
 
     public static final Setting<BooleanSettingGroup> fogModify = new Setting<>("FogModify", new BooleanSettingGroup(true));
@@ -20,7 +20,7 @@ public class WorldTweaks extends Module {
     public static final Setting<Integer> fogEnd = new Setting<>("FogEnd", 64, 10, 256).addToGroup(fogModify);
     public static final Setting<ColorSetting> fogColor = new Setting<>("FogColor", new ColorSetting(new Color(0xA900FF))).addToGroup(fogModify);
     public final Setting<Boolean> ctime = new Setting<>("ChangeTime", false);
-    public final Setting<Integer> ctimeVal = new Setting<>("Time", 21, 0, 50);
+    public final Setting<Integer> ctimeVal = new Setting<>("Time", 21, 0, 100);
 
     long oldTime;
 
@@ -44,6 +44,9 @@ public class WorldTweaks extends Module {
 
     @Override
     public void onUpdate() {
-        if (ctime.getValue()) mc.world.setTimeOfDay(ctimeVal.getValue() * 1000);
+        if (ctime.getValue()) {
+            long newTime = (long) (ctimeVal.getValue() / 100.0 * 24000);
+            mc.world.setTimeOfDay(newTime);
+        }
     }
 }

@@ -39,6 +39,7 @@ import thunder.hack.utility.render.TextureStorage;
 import thunder.hack.utility.render.animation.CaptureMark;
 import thunder.hack.utility.render.animation.Exploitcore1;
 import thunder.hack.utility.render.animation.Exploitcore2;
+import thunder.hack.utility.render.animation.Exploitcore3;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -119,6 +120,7 @@ public final class Core {
         CaptureMark.tick();
         Exploitcore1.tick();
         Exploitcore2.tick();
+        Exploitcore3.tick();
         Render3DEngine.updateTargetESP();
     }
 
