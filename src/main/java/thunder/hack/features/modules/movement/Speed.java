@@ -15,6 +15,7 @@ import net.minecraft.util.Hand;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.shape.VoxelShape;
 import net.minecraft.util.shape.VoxelShapes;
 import thunder.hack.ThunderHack;
@@ -28,6 +29,9 @@ import thunder.hack.utility.interfaces.IEntity;
 import thunder.hack.utility.player.InventoryUtility;
 import thunder.hack.utility.player.MovementUtility;
 import thunder.hack.utility.player.SearchInvResult;
+
+import java.util.HashMap;
+import java.util.Map;
 
 import static thunder.hack.features.modules.client.ClientSettings.isRu;
 import static thunder.hack.utility.player.MovementUtility.isMoving;
@@ -51,6 +55,8 @@ public class Speed extends Module {
     public final Setting<Float> matrixJBSpeed = new Setting<>("TimerSpeed", 1.088f, 1f, 2f, v -> mode.is(Mode.MatrixJB));
     public final Setting<Boolean> armorStands = new Setting<>("ArmorStands", false, v -> mode.is(Mode.GrimCombo) || mode.is(Mode.GrimEntity2));
     public Setting<Boolean> ignoreOther = new Setting<>("IgnoreOther", true);
+    public final Setting<Boolean> morews = new Setting<>("MoreWS", false, v -> mode.is(Mode.GrimEntity) || mode.is(Mode.GrimEntity2) || mode.is(Mode.GrimCombo));
+    private Map<PlayerEntity, Integer> playersBehind = new HashMap<>();
 
     public double baseSpeed;
     private int stage, ticks, prevSlot;
@@ -132,8 +138,7 @@ public class Speed extends Module {
         if ((mode.is(Mode.GrimIce) || mode.is(Mode.GrimCombo)) && mc.player.isOnGround()) {
             BlockPos pos = ((IEntity) mc.player).thunderHack_Recode$getVelocityBP();
             SearchInvResult result = InventoryUtility.findBlockInHotBar(Blocks.ICE, Blocks.PACKED_ICE, Blocks.BLUE_ICE);
-            if (mc.world.isAir(pos) || !result.found() || !mc.options.jumpKey.isPressed())
-                return;
+            if (mc.world.isAir(pos) || !result.found() || !mc.options.jumpKey.isPressed()) return;
 
             prevSlot = mc.player.getInventory().selectedSlot;
             result.switchTo();
@@ -148,7 +153,32 @@ public class Speed extends Module {
             sendSequencedPacket(id -> new PlayerInteractBlockC2SPacket(Hand.MAIN_HAND, new BlockHitResult(pos.down().toCenterPos().add(0, 0.5, 0), Direction.UP, pos.down(), false), id));
             mc.world.setBlockState(pos, Blocks.ICE.getDefaultState());
         }
+
+        if (morews.getValue()) {
+            for (PlayerEntity entity : mc.world.getPlayers()) {
+                if (entity == mc.player) continue;
+
+                double distance = mc.player.squaredDistanceTo(entity);
+                Vec3d playerPos = mc.player.getPos();
+                Vec3d entityPos = entity.getPos();
+
+                boolean isBehind = entityPos.z > playerPos.z - 1.5 && entityPos.z < playerPos.z + 1.5 &&
+                        entityPos.x > playerPos.x - 1.5 && entityPos.x < playerPos.x + 1.5;
+
+                if (isBehind) {
+                    playersBehind.put(entity, playersBehind.getOrDefault(entity, 0) + 1);
+                    if (playersBehind.get(entity) > 10) { // 10 ticków za nim = nadaj prędkość
+                        double[] motion = MovementUtility.forward(0.08);
+                        entity.addVelocity(motion[0], 0.0, motion[1]);
+                        playersBehind.put(entity, 0);
+                    }
+                } else {
+                    playersBehind.put(entity, Math.max(playersBehind.getOrDefault(entity, 0) - 1, 0));
+                }
+            }
+        }
     }
+
 
     @EventHandler
     public void onPostTick(EventPostTick e) {
