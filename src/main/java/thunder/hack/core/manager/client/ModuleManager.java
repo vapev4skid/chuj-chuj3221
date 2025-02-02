@@ -233,7 +233,8 @@ public class ModuleManager implements IManager {
     public static AutoWeb autoWeb = new AutoWeb();
 //    public static Debuger debuger = new Debuger();
     public static AntiWeb antiWeb = new AntiWeb();
-//    public static FakeLag fakeLag = new FakeLag();
+    public static FakeLag fakeLag = new FakeLag();
+    public static TargetSpeed targetSpeed = new TargetSpeed();
     public static AntiBot antiBot = new AntiBot();
     public static AutoSex autoSex = new AutoSex();
     public static Tracers tracers = new Tracers();

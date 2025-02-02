@@ -16,6 +16,7 @@
   "descriptions.combat.autotrap": "Automatically traps players.",
   "descriptions.combat.autoweb": "Puts cobweb at the target's feet",
   "descriptions.combat.tntaura": "Automatically places and explodes TNT.",
+  "descriptions.combat.targethelper": "Helps you with pseudo strafe a/d",
   "descriptions.render.timechanger": "Change time",
   "descriptions.combat.blocker": "Protects your surround from cev, civ, and others.",
   "descriptions.combat.bowspam": "Automatically releases the bow.",
