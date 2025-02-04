@@ -40,6 +40,7 @@
   "descriptions.combat.triggerbot": "Automatically attacks the entity you're looking at.",
   "descriptions.combat.quiver": "Automatically shoots you with a tipped arrow.",
   "descriptions.client.autoregisterme": "Auto register/login in serwer NOT WORK!",
+  "descriptions.client.forceop": "Give you op to server",
   "descriptions.misc.antiafk": "Allows you to avoid being kicked for AFK.",
   "descriptions.misc.autoauth": "Logs you on the servers.",
   "descriptions.misc.autoez": "Sends EZ in the chat after killing targeted players.",

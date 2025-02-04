@@ -2,6 +2,7 @@ package thunder.hack.features.modules.movement;
 
 import meteordevelopment.orbit.EventHandler;
 import net.minecraft.block.Blocks;
+import net.minecraft.command.argument.EntityAnchorArgumentType;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.decoration.ArmorStandEntity;
@@ -21,7 +22,9 @@ import net.minecraft.util.shape.VoxelShapes;
 import thunder.hack.ThunderHack;
 import thunder.hack.core.Managers;
 import thunder.hack.core.manager.client.ModuleManager;
+import thunder.hack.core.manager.client.NotificationManager;
 import thunder.hack.events.impl.*;
+import thunder.hack.gui.notification.Notification;
 import thunder.hack.injection.accesors.IInteractionManager;
 import thunder.hack.features.modules.Module;
 import thunder.hack.setting.Setting;
@@ -57,6 +60,7 @@ public class Speed extends Module {
     public Setting<Boolean> ignoreOther = new Setting<>("IgnoreOther", true);
     public final Setting<Boolean> morews = new Setting<>("MoreWS", false, v -> mode.is(Mode.GrimEntity) || mode.is(Mode.GrimEntity2) || mode.is(Mode.GrimCombo));
     private Map<PlayerEntity, Integer> playersBehind = new HashMap<>();
+    private boolean morewsNotified = false;
 
     public double baseSpeed;
     private int stage, ticks, prevSlot;
@@ -80,6 +84,10 @@ public class Speed extends Module {
         baseSpeed = 0.2873D;
         startDelay.reset();
         prevSlot = -1;
+        if (morews.getValue()) {
+            System.out.println("MoreWS aktywne!");
+        }
+
     }
 
     @EventHandler
@@ -112,10 +120,11 @@ public class Speed extends Module {
     public void modifyVelocity(EventPlayerTravel e) {
         if (mode.getValue() == Mode.GrimEntity && !e.isPre() && ThunderHack.core.getSetBackTime() > 1000) {
             for (PlayerEntity ent : Managers.ASYNC.getAsyncPlayers()) {
-                if (ent != mc.player && mc.player.squaredDistanceTo(ent) <= 2.25) {
+                if (ent != mc.player && mc.player.squaredDistanceTo(ent) <= 2.25) { // 2.25 = default
                     float p = mc.world.getBlockState(((IEntity) mc.player).thunderHack_Recode$getVelocityBP()).getBlock().getSlipperiness();
-                    float f = mc.player.isOnGround() ? p * 0.91f : 0.91f;
+                    float f = mc.player.isOnGround() ? p * 0.91f : 0.91f; // 0.91 = default
                     float f2 = mc.player.isOnGround() ? p : 0.99f;
+
                     mc.player.setVelocity(mc.player.getVelocity().getX() / f * f2, mc.player.getVelocity().getY(), mc.player.getVelocity().getZ() / f * f2);
                     break;
                 }
@@ -154,30 +163,31 @@ public class Speed extends Module {
             mc.world.setBlockState(pos, Blocks.ICE.getDefaultState());
         }
 
+
         if (morews.getValue()) {
             for (PlayerEntity entity : mc.world.getPlayers()) {
                 if (entity == mc.player) continue;
+                if (mc.player.squaredDistanceTo(entity) > 36) continue;
+                if (!mc.player.isOnGround()) continue;
 
-                double distance = mc.player.squaredDistanceTo(entity);
                 Vec3d playerPos = mc.player.getPos();
                 Vec3d entityPos = entity.getPos();
 
-                boolean isBehind = entityPos.z > playerPos.z - 1.5 && entityPos.z < playerPos.z + 1.5 &&
-                        entityPos.x > playerPos.x - 1.5 && entityPos.x < playerPos.x + 1.5;
+                boolean isBehind = entityPos.z > playerPos.z - 2.5 && entityPos.z < playerPos.z + 2.5 &&
+                        entityPos.x > playerPos.x - 2.5 && entityPos.x < playerPos.x + 2.5;
 
                 if (isBehind) {
-                    playersBehind.put(entity, playersBehind.getOrDefault(entity, 0) + 1);
-                    if (playersBehind.get(entity) > 10) { // 10 ticków za nim = nadaj prędkość
-                        double[] motion = MovementUtility.forward(0.08);
-                        entity.addVelocity(motion[0], 0.0, motion[1]);
-                        playersBehind.put(entity, 0);
-                    }
-                } else {
-                    playersBehind.put(entity, Math.max(playersBehind.getOrDefault(entity, 0) - 1, 0));
+                    double[] motion = MovementUtility.forward(0.5);
+                    entity.addVelocity(motion[0], 0.0, motion[1]);
+
+                    Managers.NOTIFICATION.publicity("SpeedMoreWS", "Speed boost dla " + entity.getName().getString() + "!", 2, Notification.Type.SUCCESS);
                 }
             }
         }
+
+        ticks++;
     }
+
 
 
     @EventHandler
@@ -280,12 +290,8 @@ public class Speed extends Module {
         if (event.isCancelled()) return;
         event.cancel();
 
-        // Ignoreother dsc.gg/exploitcore
-        if (ignoreOther.getValue() && mc.player.isUsingItem() && mc.player.getOffHandStack().getItem() == Items.SHIELD) {
-            event.cancel();
-            double[] motion = MovementUtility.forward(baseSpeed);
-            mc.player.setVelocity(motion[0], mc.player.getVelocity().y, motion[1]);
-            return;
+        if (morews.getValue()) {
+            baseSpeed *= 1.10;
         }
 
         if (MovementUtility.isMoving()) {
