@@ -5,7 +5,7 @@ plugins {
 
 task copyDeps(type: Copy) {
 	from {
-		configurations.runtimeClasspath + configurations.libImpl + configurations.modImpl
+		configurations.runtimeClasspath + configurations.libImpl + configurations.modImpl + configurations.modCompileOnly
 	}
 	into 'libs'
 }
@@ -57,11 +57,10 @@ dependencies {
 	modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
 
 	libImpl("meteordevelopment:orbit:${project.orbit_version}")
-	implementation files("C:\\Users\\mimit\\AppData\\Roaming\\.minecraft\\versions\\fabric-loader-0.16.9-1.21.jar")
 	modCompileOnly "meteordevelopment:baritone:1.21-SNAPSHOT"
 
-	libImpl("io.netty:netty-handler-proxy:${project.netty_version}") { transitive = false }
-	libImpl("io.netty:netty-codec-socks:${project.netty_version}") { transitive = false }
+	libImpl("io.netty:netty-handler-proxy:${project.netty_version}")
+	libImpl("io.netty:netty-codec-socks:${project.netty_version}")
 
 	configurations.libImpl.dependencies.each {
 		implementation(it)

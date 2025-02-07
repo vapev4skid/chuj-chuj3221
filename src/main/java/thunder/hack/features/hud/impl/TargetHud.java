@@ -21,6 +21,7 @@ import net.minecraft.util.Colors;
 import net.minecraft.util.Identifier;
 import org.lwjgl.opengl.GL40C;
 import thunder.hack.core.manager.client.ModuleManager;
+import thunder.hack.features.modules.combat.ElytraTarget;
 import thunder.hack.gui.font.FontRenderers;
 import thunder.hack.gui.hud.HudEditorGui;
 import thunder.hack.features.hud.HudElement;
@@ -143,6 +144,14 @@ public class TargetHud extends HudElement {
         } else if (Aura.target != null) {
             if (Aura.target instanceof LivingEntity) {
                 target = (LivingEntity) Aura.target;
+                direction = true;
+            } else {
+                target = null;
+                direction = false;
+            }
+        } else if (ElytraTarget.target != null) {
+            if (ElytraTarget.target instanceof LivingEntity) {
+                target = (LivingEntity) ElytraTarget.target;
                 direction = true;
             } else {
                 target = null;

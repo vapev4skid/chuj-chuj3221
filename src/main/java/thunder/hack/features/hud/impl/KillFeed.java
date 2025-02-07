@@ -93,6 +93,14 @@ public class KillFeed extends HudElement {
                     }
                 players.add(new KillComponent(pl.getName().getString()));
             }
+            if ((Aura.target != null && Aura.target == pac.getEntity(mc.world)) || (AutoCrystal.target != null && AutoCrystal.target == pac.getEntity(mc.world))) {
+                for (KillComponent kc : Lists.newArrayList(players))
+                    if (Objects.equals(kc.getName(), pl.getName().getString())) {
+                        kc.increase();
+                        return;
+                    }
+                players.add(new KillComponent(pl.getName().getString()));
+            }
         }
     }
 

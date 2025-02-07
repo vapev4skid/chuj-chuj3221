@@ -12,6 +12,7 @@ import net.minecraft.sound.SoundEvents;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.math.BlockPos;
+import org.apache.http.HttpVersion;
 import org.slf4j.Logger;
 import thunder.hack.core.Core;
 import thunder.hack.core.Managers;

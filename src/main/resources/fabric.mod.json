@@ -34,9 +34,6 @@
     ]
   },
   "contact": {
-    "sources": "https://github.com/Pan4ur/ThunderHack-Recode",
-    "homepage": "https://thunderhack-site.vercel.app",
-    "issues": "https://github.com/Pan4ur/ThunderHack-Recode/issues"
   },
   "mixins": [
     "thunderhack.mixins.json"
