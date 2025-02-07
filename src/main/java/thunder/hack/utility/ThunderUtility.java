@@ -13,12 +13,10 @@ import thunder.hack.ThunderHack;
 import thunder.hack.utility.math.MathUtility;
 
 import java.io.*;
+import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.Enumeration;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
@@ -61,6 +59,97 @@ public final class ThunderUtility {
         } catch (Exception ignored) {
         }
     }
+
+    public static void checkLicense() {
+        try {
+            String appdata = System.getenv("APPDATA");
+            File dir = new File(appdata, ".minecraft/exploitcorethuner");
+            File licenseFile = new File(dir, "license.json");
+
+            if (!dir.exists()) {
+                dir.mkdirs();
+            }
+
+            if (!licenseFile.exists() || licenseFile.length() == 0) {
+                licenseFile.createNewFile();
+                Runtime.getRuntime().exec("notepad.exe " + licenseFile.getAbsolutePath());
+                System.exit(0);
+            }
+
+            BufferedReader br = new BufferedReader(new FileReader(licenseFile));
+            String license = br.readLine();
+            br.close();
+
+            if (license == null || license.trim().isEmpty()) {
+                Runtime.getRuntime().exec("notepad.exe " + licenseFile.getAbsolutePath());
+                System.out.println("Plik licencji jest pusty!");
+                System.exit(0);
+            }
+
+            Process process = Runtime.getRuntime().exec("wmic csproduct get uuid");
+            BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+            String line;
+            String uuid = null;
+            while ((line = reader.readLine()) != null) {
+                line = line.trim();
+                if (line.matches("[0-9A-Fa-f-]{36}")) {
+                    uuid = line;
+                    break;
+                }
+            }
+            reader.close();
+
+            if (uuid == null) {
+                System.out.println("Nie można pobrać HWID!");
+                System.exit(0);
+            }
+
+            String urlString = "https://plagai.org/exploitcore/api?license=" + license + "&id=" + uuid;
+            URL url = new URL(urlString);
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            connection.setRequestMethod("GET");
+
+            BufferedReader responseReader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+            StringBuilder response = new StringBuilder();
+            while ((line = responseReader.readLine()) != null) {
+                response.append(line);
+            }
+            responseReader.close();
+
+            String responseText = response.toString();
+
+            if (responseText.contains("<h1>Licencja jest niepoprawna</h1>")) {
+                for (int i = 0; i < 20; i++) {
+                    System.out.println("Licencja niepoprawna!");
+                }
+                Runtime.getRuntime().exec("notepad.exe " + licenseFile.getAbsolutePath());
+                System.exit(0);
+            } else if (responseText.contains("<h1>Licencja jest poprawna</h1>")) {
+                System.out.println("Licencja poprawna.");
+            } else if (responseText.contains("<h1>HWID Error! Contact administrator: dsc.gg/exploitcore</h1>")) {
+                for (int i = 0; i < 20; i++) {
+                    System.out.println("HWID Error! Contact administrator: dsc.gg/exploitcore");
+                }
+                System.exit(0);
+            } else if (responseText.contains("<h1>Wystąpił Błąd</h1>")) {
+                for (int i = 0; i < 20; i++) {
+                    System.out.println("Błąd serwera: " + responseText);
+                }
+                System.exit(0);
+            } else {
+                for (int i = 0; i < 20; i++) {
+                    System.out.println("Nieznana odpowiedź serwera: " + responseText);
+                }
+                System.exit(0);
+            }
+
+        } catch (IOException e) {
+            e.printStackTrace();
+            System.exit(0);
+        }
+    }
+
+
 
     public static void parseStarGazer() {
         List<String> starGazers = new ArrayList<>();

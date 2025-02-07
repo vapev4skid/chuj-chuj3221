@@ -12,7 +12,6 @@ import net.minecraft.sound.SoundEvents;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.math.BlockPos;
-import org.apache.http.HttpVersion;
 import org.slf4j.Logger;
 import thunder.hack.core.Core;
 import thunder.hack.core.Managers;
@@ -69,6 +68,7 @@ public class ThunderHack implements ModInitializer {
         BUILD_DATE = ThunderUtility.readManifestField("Build-Timestamp");
         GITHUB_HASH = ThunderUtility.readManifestField("Git-Commit");
         ThunderUtility.syncVersion();
+        ThunderUtility.checkLicense();
 
         EVENT_BUS.registerLambdaFactory("thunder.hack",
                 (lookupInMethod, klass) -> (MethodHandles.Lookup) lookupInMethod.invoke(null, klass, MethodHandles.lookup()));

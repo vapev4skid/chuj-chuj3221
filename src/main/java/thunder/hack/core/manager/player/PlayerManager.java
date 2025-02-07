@@ -22,7 +22,6 @@ import org.jetbrains.annotations.NotNull;
 import thunder.hack.core.manager.IManager;
 import thunder.hack.core.manager.client.ModuleManager;
 import thunder.hack.events.impl.*;
-import thunder.hack.features.modules.combat.ElytraTarget;
 import thunder.hack.injection.accesors.IClientPlayerEntity;
 import thunder.hack.features.modules.Module;
 import thunder.hack.features.modules.combat.Aura;
@@ -181,44 +180,6 @@ public class PlayerManager implements IManager {
 
             if (allowWallHit && startPoint.squaredDistanceTo(ehr.getPos()) <= Math.pow(distance, 2))
                 return ehr.getEntity() == Aura.target || Aura.target == null || rt == Aura.RayTrace.OnlyTarget;
-        }
-
-        return false;
-    }
-
-    public boolean checkRtxelytratarget(float yaw, float pitch, float distance, float wallDistance, ElytraTarget.RayTrace rt) {
-        if (rt == ElytraTarget.RayTrace.OFF)
-            return true;
-
-        HitResult result = rayTrace(distance, yaw, pitch);
-        Vec3d startPoint = mc.player.getPos().add(0, mc.player.getEyeHeight(mc.player.getPose()), 0);
-        double distancePow2 = Math.pow(distance, 2);
-
-        if (result != null)
-            distancePow2 = startPoint.squaredDistanceTo(result.getPos());
-
-        Vec3d rotationVector = getRotationVector(pitch, yaw).multiply(distance);
-        Vec3d endPoint = startPoint.add(rotationVector);
-
-        Box entityArea = mc.player.getBoundingBox().stretch(rotationVector).expand(1.0, 1.0, 1.0);
-
-        EntityHitResult ehr;
-
-        double maxDistance = Math.max(distancePow2, Math.pow(wallDistance, 2));
-
-        if (rt == ElytraTarget.RayTrace.OnlyTarget && ElytraTarget.target != null)
-            ehr = ProjectileUtil.raycast(mc.player, startPoint, endPoint, entityArea, e -> !e.isSpectator() && e.canHit() && e == ElytraTarget.target, maxDistance);
-        else
-            ehr = ProjectileUtil.raycast(mc.player, startPoint, endPoint, entityArea, e -> !e.isSpectator() && e.canHit(), maxDistance);
-
-        if (ehr != null) {
-            boolean allowedWallDistance = startPoint.squaredDistanceTo(ehr.getPos()) <= Math.pow(wallDistance, 2);
-            boolean wallMissing = result == null;
-            boolean wallBehindEntity = startPoint.squaredDistanceTo(ehr.getPos()) < distancePow2;
-            boolean allowWallHit = wallMissing || allowedWallDistance || wallBehindEntity;
-
-            if (allowWallHit && startPoint.squaredDistanceTo(ehr.getPos()) <= Math.pow(distance, 2))
-                return ehr.getEntity() == ElytraTarget.target || ElytraTarget.target == null || rt == ElytraTarget.RayTrace.OnlyTarget;
         }
 
         return false;
