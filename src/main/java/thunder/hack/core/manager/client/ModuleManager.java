@@ -30,7 +30,6 @@ public class ModuleManager implements IManager {
     public List<Module> sortedModules = new ArrayList<>();
     public List<Integer> activeMouseKeys = new ArrayList<>();
 
-    public static PenisESP penisESP = new PenisESP();
     public static AntiPacketException antiPacketException = new AntiPacketException();
     public static LevitationControl levitationControl = new LevitationControl();
     public static InventoryCleaner inventoryCleaner = new InventoryCleaner();
@@ -163,7 +162,6 @@ public class ModuleManager implements IManager {
     public static Crosshair crosshair = new Crosshair();
     public static Criticals criticals = new Criticals();
     public static ChatUtils chatUtils = new ChatUtils();
-    public static AutoRegisterMe autoRegisterMe = new AutoRegisterMe();
     public static AutoTotem autoTotem = new AutoTotem();
     public static AutoLeave autoLeave = new AutoLeave();
     public static AutoFlyme autoFlyme = new AutoFlyme();

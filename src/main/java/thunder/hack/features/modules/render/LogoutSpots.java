@@ -46,6 +46,9 @@ public class LogoutSpots extends Module {
     private final Setting<ColorSetting> color = new Setting<>("Color", new ColorSetting(0x8800FF00));
     private final Setting<Boolean> notifications = new Setting<>("Notifications", true);
     private final Setting<Boolean> ignoreBots = new Setting<>("IgnoreBots", true);
+    private final Setting<Integer> timeout = new Setting<>("Timeout", 30, 1, 300);
+
+    private final Map<UUID, Long> logoutTimestamps = Maps.newConcurrentMap();
 
     private final Map<UUID, PlayerEntity> playerCache = Maps.newConcurrentMap();
     private final Map<UUID, PlayerEntity> logoutCache = Maps.newConcurrentMap();
@@ -77,8 +80,11 @@ public class LogoutSpots extends Module {
                     if (pl != null) {
                         if (notifications.getValue())
                             sendMessage(pl.getName().getString() + " logged out at  X: " + (int) pl.getX() + " Y: " + (int) pl.getY() + " Z: " + (int) pl.getZ());
-                        if (!logoutCache.containsKey(uuid))
+
+                        if (!logoutCache.containsKey(uuid)) {
                             logoutCache.put(uuid, pl);
+                            logoutTimestamps.put(uuid, System.currentTimeMillis());
+                        }
                     }
                 }
             }
@@ -94,6 +100,10 @@ public class LogoutSpots extends Module {
 
     @Override
     public void onUpdate() {
+        long currentTime = System.currentTimeMillis();
+        logoutTimestamps.entrySet().removeIf(entry -> (currentTime - entry.getValue()) / 1000 > timeout.getValue());
+        logoutCache.keySet().removeIf(uuid -> !logoutTimestamps.containsKey(uuid));
+
         for (PlayerEntity player : mc.world.getPlayers()) {
             if (player == null || player.equals(mc.player)) continue;
             playerCache.put(player.getGameProfile().getId(), player);
