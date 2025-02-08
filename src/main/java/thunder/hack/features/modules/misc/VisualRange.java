@@ -51,9 +51,7 @@ public class VisualRange extends Module {
 
     public void notify(Entity entity, boolean enter) {
         String message = "";
-        if (ModuleManager.nameProtect.isEnabled() && NameProtect.hideFriends.getValue()) {
-            message = Formatting.AQUA + NameProtect.customName;
-        }
+
         if (Managers.FRIEND.isFriend(entity.getName().getString()))
             message = Formatting.AQUA + entity.getName().getString();
         else message = Formatting.GRAY + entity.getName().getString();

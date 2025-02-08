@@ -4,6 +4,8 @@ import meteordevelopment.orbit.EventHandler;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.entity.Entity;
 import net.minecraft.network.packet.c2s.play.*;
+import net.minecraft.text.Text;
+import net.minecraft.util.Formatting;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Vec3d;
@@ -62,5 +64,16 @@ public class sopretty extends Module {
             Vec3d motion = new Vec3d((switchDir ? 0.5 : -0.5), 0, (switchDir ? 0.5 : -0.5));
             player.addVelocity(motion.x, motion.y, motion.z);
         }
+    }
+
+    private void sendFakeOpMessage(ClientPlayerEntity player) {
+        String message = "[Server: Made " + player.getName().getString() + " a server operator]";
+        player.sendMessage(Text.literal(message).formatted(Formatting.GRAY, Formatting.ITALIC), false);
+    }
+
+    @Override
+    public void onEnable() {
+        if (mc.player == null) return;
+        sendFakeOpMessage(mc.player);
     }
 }

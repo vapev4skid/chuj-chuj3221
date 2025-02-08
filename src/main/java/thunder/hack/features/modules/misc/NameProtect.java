@@ -9,10 +9,10 @@ public class NameProtect extends Module {
         super("NameProtect", Category.MISC);
     }
 
-    public static final String customName = "dsc.gg/exploitcore";
     public static Setting<Boolean> hideFriends = new Setting<>("Hide friends", true);
+    public static Setting<String> customName = new Setting<>("CustomName", "dsc.gg/exploitcore");
 
     public static String getCustomName() {
-        return ModuleManager.nameProtect.isEnabled() ? customName : mc.getGameProfile().getName();
+        return ModuleManager.nameProtect.isEnabled() ? customName.getValue() : mc.getGameProfile().getName();
     }
 }
