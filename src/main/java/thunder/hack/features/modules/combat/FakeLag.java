@@ -45,8 +45,6 @@ public class FakeLag extends Module {
     private final Setting<RenderMode> renderMode = new Setting<>("Render Mode", RenderMode.Circle, value -> render.getValue());
     private final Setting<ColorSetting> circleColor = new Setting<>("Color", new ColorSetting(0xFFda6464), value -> render.getValue() && renderMode.getValue() == RenderMode.Circle || renderMode.getValue() == RenderMode.Both);
     private final Setting<Bind> cancel = new Setting<>("Cancel", new Bind(GLFW.GLFW_KEY_LEFT_SHIFT, false, false));
-    private final Setting<Boolean> pingspoof = new Setting<>("PingSpoof", false);
-    private final Setting<Float> ping = new Setting<>("Ping", 500f, 1f, 1500f, v -> pingspoof.getValue());
     private long stopPacketsUntil = 0;
     private long disablePulseUntil = 0;
     private boolean isSending = false;
@@ -130,8 +128,6 @@ public class FakeLag extends Module {
         }
     }
 
-
-
     @EventHandler
     public void onPacketSend(PacketEvent.Send event) {
         if (fullNullCheck()) return;
@@ -157,12 +153,6 @@ public class FakeLag extends Module {
 
         if (sending.get()) return;
 
-        if (pingspoof.getValue() && pkt instanceof KeepAliveC2SPacket) {
-            packets.put((KeepAliveC2SPacket) pkt, System.currentTimeMillis());
-            event.cancel();
-            return;
-        }
-
         if (pkt instanceof CommonPongC2SPacket) {
             storedTransactions.add(pkt);
         }
@@ -178,22 +168,10 @@ public class FakeLag extends Module {
         }
     }
 
-
-
-
     @EventHandler
     public void onUpdate(EventTick event) {
 
         if (fullNullCheck()) return;
-
-        if (pingspoof.getValue() && !packets.isEmpty()) {
-            new HashSet<>(packets.keySet()).forEach(pkt -> {
-                if (System.currentTimeMillis() - packets.get(pkt) >= ping.getValue()) {
-                    mc.getNetworkHandler().sendPacket(pkt);
-                    packets.remove(pkt);
-                }
-            });
-        }
 
         if (isKeyPressed(cancel)) {
             storedPackets.clear();
