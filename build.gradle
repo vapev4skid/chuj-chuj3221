@@ -55,6 +55,7 @@ dependencies {
 	minecraft "com.mojang:minecraft:${project.minecraft_version}"
 	mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
 	modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
+	implementation 'com.aayushatharva.brotli4j:brotli4j:1.11.0'
 
 	libImpl("meteordevelopment:orbit:${project.orbit_version}")
 	modCompileOnly "meteordevelopment:baritone:1.21-SNAPSHOT"

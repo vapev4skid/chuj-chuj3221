@@ -47,10 +47,9 @@ public class FakeLag extends Module {
     private final Setting<Bind> cancel = new Setting<>("Cancel", new Bind(GLFW.GLFW_KEY_LEFT_SHIFT, false, false));
     private final Setting<Boolean> pingspoof = new Setting<>("PingSpoof", false);
     private final Setting<Float> ping = new Setting<>("Ping", 500f, 1f, 1500f, v -> pingspoof.getValue());
-    private final Setting<Boolean> syncAura = new Setting<>("SyncAura", false);
     private long stopPacketsUntil = 0;
-    private boolean notifiedVelocity = false;
     private long disablePulseUntil = 0;
+    private boolean isSending = false;
 
     private final ConcurrentHashMap<KeepAliveC2SPacket, Long> packets = new ConcurrentHashMap<>();
 
@@ -102,26 +101,12 @@ public class FakeLag extends Module {
         blinkPlayer = null;
     }
 
-    private boolean shouldClearPacketsBeforeHit() {
-        if (!ModuleManager.aura.isEnabled() || Aura.target == null) {
-            return false;
-        }
-
-        double distanceToTarget = mc.player.getPos().distanceTo(Aura.target.getPos());
-        double attackRange = ModuleManager.aura.attackRange.getValue();
-
-        if (distanceToTarget > attackRange) return false;
-
-        int minCPS = ModuleManager.aura.minCPS.getValue();
-        int maxCPS = ModuleManager.aura.maxCPS.getValue();
-        if (minCPS <= 0 || maxCPS <= 0) return false;
-
-        int averageCPS = (minCPS + maxCPS) / 2;
-        double attackDelay = 1000.0 / averageCPS;
-
-        return (mc.player.age % (int) attackDelay) >= (attackDelay - 50);
+    private void sendPacketSafely(Packet<?> packet) {
+        if (isSending) return;
+        isSending = true;
+        sendPacket(packet);
+        isSending = false;
     }
-
 
     @Override
     public String getDisplayInfo() {
@@ -130,26 +115,44 @@ public class FakeLag extends Module {
 
     @EventHandler
     public void onPacketReceive(PacketEvent.Receive event) {
-        if (event.getPacket() instanceof EntityVelocityUpdateS2CPacket vel && vel.getId() == mc.player.getId() && disableOnVelocity.getValue()) {
-            if (!notifiedVelocity) {
-                Managers.NOTIFICATION.publicity("[Fakelag] ", "velocity", 2, Notification.Type.WARNING);
-                notifiedVelocity = true;
+        if (event.getPacket() instanceof EntityVelocityUpdateS2CPacket) {
+            EntityVelocityUpdateS2CPacket packet = (EntityVelocityUpdateS2CPacket) event.getPacket();
+
+            if (packet.getId() == mc.player.getId()) {
+                if (disableOnVelocity.getValue()) {
+                    Managers.NOTIFICATION.publicity("[FakeLag] ", "velocity detected, flushing packets", 2, Notification.Type.WARNING);
+                    sendPackets();
+                }
+
+                event.cancel();
+                mc.player.setVelocity(0, 0, 0);
             }
-            stopPacketsUntil = System.currentTimeMillis() + 800;
         }
     }
+
 
 
     @EventHandler
     public void onPacketSend(PacketEvent.Send event) {
         if (fullNullCheck()) return;
 
+        if (event.getPacket() instanceof PlayerMoveC2SPacket) {
+            event.cancel();
+
+            PlayerMoveC2SPacket movePacket = new PlayerMoveC2SPacket.PositionAndOnGround(
+                    ((PlayerMoveC2SPacket) event.getPacket()).getX(mc.player.getX()) + (Math.random() * 0.002 - 0.001),
+                    ((PlayerMoveC2SPacket) event.getPacket()).getY(mc.player.getY()),
+                    ((PlayerMoveC2SPacket) event.getPacket()).getZ(mc.player.getZ()) + (Math.random() * 0.002 - 0.001),
+                    ((PlayerMoveC2SPacket) event.getPacket()).isOnGround()
+            );
+
+            sendPacketSafely(movePacket);
+        }
+
         Packet<?> pkt = event.getPacket();
 
         if (System.currentTimeMillis() < disablePulseUntil) {
             return;
-        } else {
-            notifiedVelocity = false;
         }
 
         if (sending.get()) return;
@@ -180,10 +183,6 @@ public class FakeLag extends Module {
 
     @EventHandler
     public void onUpdate(EventTick event) {
-
-        if (System.currentTimeMillis() >= disablePulseUntil) {
-            notifiedVelocity = false;
-        }
 
         if (fullNullCheck()) return;
 

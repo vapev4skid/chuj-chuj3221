@@ -10,7 +10,7 @@ public class NameProtect extends Module {
     }
 
     public static Setting<Boolean> hideFriends = new Setting<>("Hide friends", true);
-    public static Setting<String> customName = new Setting<>("CustomName", "dsc.gg/exploitcore");
+    public static Setting<String> customName = new Setting<>("CustomName", "MarekPonton");
 
     public static String getCustomName() {
         return ModuleManager.nameProtect.isEnabled() ? customName.getValue() : mc.getGameProfile().getName();

@@ -28,19 +28,19 @@ import net.minecraft.screen.slot.SlotActionType;
 import net.minecraft.util.Hand;
 import net.minecraft.util.math.*;
 import org.jetbrains.annotations.NotNull;
+import org.lwjgl.glfw.GLFW;
 import thunder.hack.ThunderHack;
 import thunder.hack.core.Core;
 import thunder.hack.core.Managers;
 import thunder.hack.core.manager.client.ModuleManager;
-import thunder.hack.events.impl.EventMove;
-import thunder.hack.events.impl.EventSync;
-import thunder.hack.events.impl.PacketEvent;
-import thunder.hack.events.impl.PlayerUpdateEvent;
+import thunder.hack.events.impl.*;
+import thunder.hack.features.modules.client.Rotations;
 import thunder.hack.gui.notification.Notification;
 import thunder.hack.injection.accesors.ILivingEntity;
 import thunder.hack.features.modules.Module;
 import thunder.hack.features.modules.client.HudEditor;
 import thunder.hack.setting.Setting;
+import thunder.hack.setting.impl.Bind;
 import thunder.hack.setting.impl.BooleanSettingGroup;
 import thunder.hack.setting.impl.SettingGroup;
 import thunder.hack.utility.Timer;
@@ -64,6 +64,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 import static net.minecraft.util.UseAction.BLOCK;
 import static net.minecraft.util.math.MathHelper.wrapDegrees;
+import static org.lwjgl.glfw.GLFW.GLFW_PRESS;
 import static thunder.hack.features.modules.client.ClientSettings.isRu;
 import static thunder.hack.utility.math.MathUtility.random;
 
@@ -75,6 +76,15 @@ public class Aura extends Module {
     public final Setting<Float> elytraWallRange = new Setting<>("ElytraThroughWallsRange", 3.1f, 0f, 6.0f, v -> elytra.getValue());
     public final Setting<WallsBypass> wallsBypass = new Setting<>("WallsBypass", WallsBypass.Off, v -> getWallRange() > 0);
     public final Setting<Integer> fov = new Setting<>("FOV", 180, 1, 360);
+    public final Setting<Boolean> elytraTargetcustom = new Setting<>("ElytraTarget", false);
+    public final Setting<Bind> cancel = new Setting<>("Bind", new Bind(GLFW.GLFW_KEY_LEFT_SHIFT, false, false), v -> elytraTargetcustom.getValue());
+    public final Setting<Boolean> fireSpam = new Setting<>("FireSpam", false, v -> elytraTargetcustom.getValue());
+    public final Setting<Boolean> nursulantCrit = new Setting<>("NursulantCrit", false, v -> elytraTargetcustom.getValue());
+    private boolean keyHeld = false;
+    private boolean elytraTargetActive = false;
+    private Mode previousRotationMode;
+    private Rotations.MoveFix previousMoveFix;
+    private boolean critState = false;
     public final Setting<Mode> rotationMode = new Setting<>("RotationMode", Mode.Track);
     public final Setting<Integer> interactTicks = new Setting<>("InteractTicks", 3, 1, 50, v -> rotationMode.getValue() == Mode.Interact);
     public final Setting<Switch> switchMode = new Setting<>("AutoWeapon", Switch.None);
@@ -173,6 +183,64 @@ public class Aura extends Module {
 
     public Aura() {
         super("Aura", Category.COMBAT);
+    }
+
+    @EventHandler
+    public void onTick(EventTick e) {
+        if (!elytraTargetcustom.getValue()) {
+            return;
+        }
+
+        boolean isKeyPressed = cancel.getValue().getKey() != -1 && GLFW.glfwGetKey(mc.getWindow().getHandle(), cancel.getValue().getKey()) == GLFW.GLFW_PRESS;
+
+        if (isKeyPressed && !keyHeld) {
+            keyHeld = true;
+
+            if (!elytraTargetActive) {
+                previousRotationMode = rotationMode.getValue();
+                previousMoveFix = ModuleManager.rotations.getMoveFix();
+
+                rotationMode.setValue(Mode.Track);
+
+                if (fireSpam.getValue()) {
+                    ModuleManager.fireSpam.enable();
+                }
+
+                ModuleManager.rotations.setMoveFix(Rotations.MoveFix.Focused);
+                elytraTargetActive = true;
+
+                Managers.NOTIFICATION.publicity("[Aura-ElytraTarget] ", "Włączony", 2, Notification.Type.SUCCESS);
+            } else {
+                rotationMode.setValue(previousRotationMode);
+
+                if (fireSpam.getValue()) {
+                    ModuleManager.fireSpam.disable();
+                }
+
+                ModuleManager.rotations.setMoveFix(previousMoveFix);
+                elytraTargetActive = false;
+
+                Managers.NOTIFICATION.publicity("[Aura-ElytraTarget] ", "Wyłączony", 2, Notification.Type.ERROR);
+            }
+        }
+
+        if (!isKeyPressed) {
+            keyHeld = false;
+        }
+
+        if (elytraTargetActive && nursulantCrit.getValue()) {
+            if (mc.options.attackKey.isPressed()) {
+                if (!critState) {
+                    mc.player.setPitch(mc.player.getPitch() + 30);
+                } else {
+                    mc.player.setPitch(mc.player.getPitch() - 30);
+                }
+                critState = !critState;
+            }
+        }
+    }
+    public boolean isElytraTargetActive() {
+        return elytraTargetActive;
     }
 
     private float getRange() {
