@@ -34,6 +34,7 @@ import thunder.hack.core.Core;
 import thunder.hack.core.Managers;
 import thunder.hack.core.manager.client.ModuleManager;
 import thunder.hack.events.impl.*;
+import thunder.hack.features.modules.client.ClientSettings;
 import thunder.hack.features.modules.client.Rotations;
 import thunder.hack.gui.notification.Notification;
 import thunder.hack.injection.accesors.ILivingEntity;
@@ -57,6 +58,7 @@ import thunder.hack.utility.render.animation.Exploitcore1;
 import thunder.hack.utility.render.animation.Exploitcore2;
 import thunder.hack.utility.render.animation.Exploitcore3;
 
+import java.awt.*;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
@@ -168,6 +170,10 @@ public class Aura extends Module {
     public float rotationPitch;
     public float pitchAcceleration = 1f;
 
+    private Color currentColor;
+    private float transitionProgress = 0.0f;
+    private boolean transitioningToHit = false;
+
     private Vec3d rotationPoint = Vec3d.ZERO;
     private Vec3d rotationMotion = Vec3d.ZERO;
 
@@ -177,6 +183,7 @@ public class Aura extends Module {
 
     private final Timer delayTimer = new Timer();
     private final Timer pauseTimer = new Timer();
+    private Resolver previousResolverMode;
 
     public Box resolvedBox;
     static boolean wasTargeted = false;
@@ -199,8 +206,10 @@ public class Aura extends Module {
             if (!elytraTargetActive) {
                 previousRotationMode = rotationMode.getValue();
                 previousMoveFix = ModuleManager.rotations.getMoveFix();
+                previousResolverMode = resolver.getValue();
 
                 rotationMode.setValue(Mode.Track);
+                resolver.setValue(Resolver.Mimimix);
 
                 if (fireSpam.getValue()) {
                     ModuleManager.fireSpam.enable();
@@ -212,6 +221,7 @@ public class Aura extends Module {
                 Managers.NOTIFICATION.publicity("[Aura-ElytraTarget] ", "Włączony", 2, Notification.Type.SUCCESS);
             } else {
                 rotationMode.setValue(previousRotationMode);
+                resolver.setValue(previousResolverMode);
 
                 if (fireSpam.getValue()) {
                     ModuleManager.fireSpam.disable();
@@ -886,7 +896,6 @@ public class Aura extends Module {
     }
 
 
-
     private boolean skipEntity(Entity entity) {
         if (isBullet(entity)) return false;
         if (!(entity instanceof LivingEntity ent)) return true;
@@ -983,6 +992,15 @@ public class Aura extends Module {
 
         }
     }
+
+    private Color interpolateColor(Color color1, Color color2, float progress) {
+        int red = (int) (color1.getRed() + (color2.getRed() - color1.getRed()) * progress);
+        int green = (int) (color1.getGreen() + (color2.getGreen() - color1.getGreen()) * progress);
+        int blue = (int) (color1.getBlue() + (color2.getBlue() - color1.getBlue()) * progress);
+        int alpha = (int) (color1.getAlpha() + (color2.getAlpha() - color1.getAlpha()) * progress);
+        return new Color(red, green, blue, alpha);
+    }
+
 
     public enum RayTrace {
         OFF, OnlyTarget, AllEntities

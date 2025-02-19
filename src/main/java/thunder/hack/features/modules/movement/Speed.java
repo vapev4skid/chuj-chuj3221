@@ -58,7 +58,7 @@ public class Speed extends Module {
     public final Setting<Float> matrixJBSpeed = new Setting<>("TimerSpeed", 1.088f, 1f, 2f, v -> mode.is(Mode.MatrixJB));
     public final Setting<Boolean> armorStands = new Setting<>("ArmorStands", false, v -> mode.is(Mode.GrimCombo) || mode.is(Mode.GrimEntity2));
     public Setting<Boolean> ignoreOther = new Setting<>("IgnoreOther", true);
-    public final Setting<Boolean> morews = new Setting<>("MoreWS", false, v -> mode.is(Mode.GrimEntity) || mode.is(Mode.GrimEntity2) || mode.is(Mode.GrimCombo));
+//    public final Setting<Boolean> morews = new Setting<>("MoreWS", false, v -> mode.is(Mode.GrimEntity) || mode.is(Mode.GrimEntity2) || mode.is(Mode.GrimCombo));
     private Map<PlayerEntity, Integer> playersBehind = new HashMap<>();
     private boolean morewsNotified = false;
 
@@ -84,10 +84,6 @@ public class Speed extends Module {
         baseSpeed = 0.2873D;
         startDelay.reset();
         prevSlot = -1;
-        if (morews.getValue()) {
-            System.out.println("MoreWS aktywne!");
-        }
-
     }
 
     @EventHandler
@@ -163,27 +159,6 @@ public class Speed extends Module {
             mc.world.setBlockState(pos, Blocks.ICE.getDefaultState());
         }
 
-
-        if (morews.getValue()) {
-            for (PlayerEntity entity : mc.world.getPlayers()) {
-                if (entity == mc.player) continue;
-                if (mc.player.squaredDistanceTo(entity) > 36) continue;
-                if (!mc.player.isOnGround()) continue;
-
-                Vec3d playerPos = mc.player.getPos();
-                Vec3d entityPos = entity.getPos();
-
-                boolean isBehind = entityPos.z > playerPos.z - 2.5 && entityPos.z < playerPos.z + 2.5 &&
-                        entityPos.x > playerPos.x - 2.5 && entityPos.x < playerPos.x + 2.5;
-
-                if (isBehind) {
-                    double[] motion = MovementUtility.forward(0.5);
-                    entity.addVelocity(motion[0], 0.0, motion[1]);
-
-                    Managers.NOTIFICATION.publicity("SpeedMoreWS", "Speed boost dla " + entity.getName().getString() + "!", 2, Notification.Type.SUCCESS);
-                }
-            }
-        }
 
         ticks++;
     }
@@ -289,10 +264,6 @@ public class Speed extends Module {
         if (mc.player.getHungerManager().getFoodLevel() <= 6) return;
         if (event.isCancelled()) return;
         event.cancel();
-
-        if (morews.getValue()) {
-            baseSpeed *= 1.10;
-        }
 
         if (MovementUtility.isMoving()) {
             ThunderHack.TICK_TIMER = useTimer.getValue() ? 1.088f : 1f;

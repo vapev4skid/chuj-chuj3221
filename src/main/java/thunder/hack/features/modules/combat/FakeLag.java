@@ -132,19 +132,6 @@ public class FakeLag extends Module {
     public void onPacketSend(PacketEvent.Send event) {
         if (fullNullCheck()) return;
 
-        if (event.getPacket() instanceof PlayerMoveC2SPacket) {
-            event.cancel();
-
-            PlayerMoveC2SPacket movePacket = new PlayerMoveC2SPacket.PositionAndOnGround(
-                    ((PlayerMoveC2SPacket) event.getPacket()).getX(mc.player.getX()) + (Math.random() * 0.002 - 0.001),
-                    ((PlayerMoveC2SPacket) event.getPacket()).getY(mc.player.getY()),
-                    ((PlayerMoveC2SPacket) event.getPacket()).getZ(mc.player.getZ()) + (Math.random() * 0.002 - 0.001),
-                    ((PlayerMoveC2SPacket) event.getPacket()).isOnGround()
-            );
-
-            sendPacketSafely(movePacket);
-        }
-
         Packet<?> pkt = event.getPacket();
 
         if (System.currentTimeMillis() < disablePulseUntil) {
