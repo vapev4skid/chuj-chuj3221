@@ -277,6 +277,7 @@ public class ModuleManager implements IManager {
     public static Step step = new Step();
     public static Aura aura = new Aura();
     public static FOV fov = new FOV();
+    public static AutoDripStone autoDripStone = new AutoDripStone();
     public static sopretty sopretty = new sopretty();
 //    public static deletefakeforceop deletefakeforceop = new deletefakeforceop();
     public static ESP esp = new ESP();
