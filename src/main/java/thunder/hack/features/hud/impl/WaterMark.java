@@ -24,7 +24,8 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 public class WaterMark extends HudElement {
-    public WaterMark() {
+    public
+    WaterMark() {
         super("WaterMark", 100, 35);
     }
 

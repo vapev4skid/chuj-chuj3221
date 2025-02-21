@@ -86,18 +86,42 @@ public final class ThunderUtility {
                 System.exit(0);
             }
 
-            Process process = Runtime.getRuntime().exec("wmic csproduct get uuid");
-            BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
-            String line;
             String uuid = null;
-            while ((line = reader.readLine()) != null) {
-                line = line.trim();
-                if (line.matches("[0-9A-Fa-f-]{36}")) {
-                    uuid = line;
-                    break;
+
+            try {
+                Process process = Runtime.getRuntime().exec("wmic csproduct get uuid");
+                BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    line = line.trim();
+                    if (line.matches("[0-9A-Fa-f-]{36}")) {
+                        uuid = line;
+                        break;
+                    }
+                }
+                reader.close();
+            } catch (IOException e) {
+                System.out.println("Błąd przy używaniu 'wmic', próba użycia PowerShell.");
+            }
+
+            if (uuid == null) {
+                try {
+                    Process process = Runtime.getRuntime().exec("powershell -command \"Get-WmiObject Win32_ComputerSystemProduct | Select-Object -ExpandProperty UUID\"");
+                    BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+                    String line;
+                    while ((line = reader.readLine()) != null) {
+                        line = line.trim();
+                        if (line.matches("[0-9A-Fa-f-]{36}")) {
+                            uuid = line;
+                            break;
+                        }
+                    }
+                    reader.close();
+                } catch (IOException e) {
+                    System.out.println("Nie udało się pobrać UUID za pomocą PowerShell!");
+                    System.exit(0);
                 }
             }
-            reader.close();
 
             if (uuid == null) {
                 System.out.println("Nie można pobrać HWID!");
@@ -111,6 +135,7 @@ public final class ThunderUtility {
 
             BufferedReader responseReader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
             StringBuilder response = new StringBuilder();
+            String line;
             while ((line = responseReader.readLine()) != null) {
                 response.append(line);
             }
@@ -148,7 +173,6 @@ public final class ThunderUtility {
             System.exit(0);
         }
     }
-
 
 
     public static void parseStarGazer() {
