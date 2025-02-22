@@ -104,8 +104,6 @@ public class Animations extends Module {
                 matrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees((float) i * -45.0F));
                 translateBack(matrices);
             }
-            case Two ->
-                    applyEquipOffset(matrices, arm, 0.2F * MathHelper.sin(MathHelper.sqrt(swingProgress) * 6.2831855F));
             case Three -> {
                 float n = -0.4F * MathHelper.sin(MathHelper.sqrt(swingProgress) * 3.1415927F);
                 float g = MathHelper.sin(MathHelper.sqrt(swingProgress) * 3.1415927F);
