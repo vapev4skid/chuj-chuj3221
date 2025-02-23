@@ -176,28 +176,31 @@ public final class ThunderUtility {
 
 
     public static void parseStarGazer() {
-        List<String> starGazers = new ArrayList<>();
-
+        List<String> onlinePlayers = new ArrayList<>();
         try {
-            for (int page = 1; page <= 3; page++) {
-                URL url = new URL("https://api.github.com/repos/Pan4ur/ThunderHack-Recode/stargazers?per_page=100&page=" + page);
-                BufferedReader in = new BufferedReader(new InputStreamReader(url.openStream()));
-                StringBuilder response = new StringBuilder();
-                String inputLine;
+            URL url = new URL("https://plagai.org/apimimi/api?viev");
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            connection.setRequestMethod("GET");
+            connection.setConnectTimeout(5000);
+            connection.setReadTimeout(5000);
 
-                while ((inputLine = in.readLine()) != null) {
-                    response.append(inputLine);
-                }
-                in.close();
+            BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+            StringBuilder response = new StringBuilder();
+            String line;
 
-                JsonArray jsonArray = JsonParser.parseString(response.toString()).getAsJsonArray();
-                for (int i = 0; i < jsonArray.size(); i++) {
-                    JsonObject jsonObject = jsonArray.get(i).getAsJsonObject();
-                    starGazers.add(jsonObject.getAsJsonPrimitive("login").getAsString());
-                }
-
-                Thread.sleep(1500);
+            while ((line = reader.readLine()) != null) {
+                response.append(line);
             }
+            reader.close();
+
+            String[] players = response.toString().split(",");
+            for (String player : players) {
+                onlinePlayers.add(player.trim());
+            }
+
+            starGazer.clear();
+            starGazer.addAll(onlinePlayers);
+
         } catch (Exception e) {
             e.printStackTrace();
         }

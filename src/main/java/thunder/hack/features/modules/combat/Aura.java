@@ -701,6 +701,24 @@ public class Aura extends Module {
     @Override
     public void onDisable() {
         target = null;
+        if (elytraTargetActive) {
+            elytraTargetActive = false;
+
+            if (previousRotationMode != null) {
+                rotationMode.setValue(previousRotationMode);
+            }
+            if (previousResolverMode != null) {
+                resolver.setValue(previousResolverMode);
+            }
+
+            if (fireSpam.getValue()) {
+                ModuleManager.fireSpam.disable();
+            }
+
+            ModuleManager.rotations.setMoveFix(previousMoveFix);
+
+            Managers.NOTIFICATION.publicity("[Aura-ElytraTarget] ", "Wyłączony", 2, Notification.Type.ERROR);
+        }
     }
 
     public float getSquaredRotateDistance() {

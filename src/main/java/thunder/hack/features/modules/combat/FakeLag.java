@@ -5,16 +5,12 @@ import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.network.packet.Packet;
 import net.minecraft.network.packet.c2s.common.CommonPongC2SPacket;
-import net.minecraft.network.packet.c2s.common.KeepAliveC2SPacket;
 import net.minecraft.network.packet.c2s.play.*;
 import net.minecraft.network.packet.s2c.play.EntityVelocityUpdateS2CPacket;
 import net.minecraft.util.math.Vec3d;
-import thunder.hack.core.Managers;
-import thunder.hack.events.impl.EventAttack;
 import thunder.hack.events.impl.EventTick;
 import thunder.hack.events.impl.PacketEvent;
 import thunder.hack.features.modules.Module;
-import thunder.hack.gui.notification.Notification;
 import thunder.hack.setting.Setting;
 import thunder.hack.setting.impl.ColorSetting;
 import thunder.hack.utility.player.PlayerEntityCopy;
@@ -22,27 +18,22 @@ import thunder.hack.utility.render.Render3DEngine;
 
 import java.awt.*;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Queue;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import static thunder.hack.features.modules.client.ClientSettings.isRu;
 
 public class FakeLag extends Module {
     public FakeLag() {
-        super("FakeLagBETA", Category.MISC);
+        super("FakeLagBeta", Category.MOVEMENT);
     }
 
     private final Setting<Boolean> blink = new Setting<>("Blink", false);
     private final Setting<Boolean> reviveMode = new Setting<>("Player Revive", false);
+    private final Setting<Boolean> silent = new Setting<>("Silent", false);
     private final Setting<Boolean> bypass = new Setting<>("Bypass", false);
     private final Setting<Integer> blinkTime = new Setting<>("Blink Time", 100, 0, 10000);
-    private final Setting<Boolean> pingSpoof = new Setting<>("PingSpoof", false);
-    private final Setting<Float> pingDelay = new Setting<>("Ping Delay", 500f, 1f, 1500f, v -> pingSpoof.getValue());
-    private final ConcurrentHashMap<KeepAliveC2SPacket, Long> pingPackets = new ConcurrentHashMap<>();
-
 
     private long lastBlinkToggle = System.currentTimeMillis();
     private boolean blinkState = false;
@@ -59,11 +50,6 @@ public class FakeLag extends Module {
     private final Setting<Boolean> render = new Setting<>("Render", true);
     private final Setting<RenderMode> renderMode = new Setting<>("Render Mode", RenderMode.Circle);
     private final Setting<ColorSetting> circleColor = new Setting<>("Color", new ColorSetting(0xFFda6464));
-    private long velocityDetectedTime = 0;
-    private boolean isTemporarilyDisabled = false;
-    private Vec3d lastServerPos = Vec3d.ZERO;
-    private long lastVeloCheckTime = 0;
-
 
     private enum RenderMode {
         Circle,
@@ -106,69 +92,16 @@ public class FakeLag extends Module {
         return Integer.toString(storedPackets.size());
     }
 
-
-    @EventHandler
-    public void onAttack(EventAttack event) {
-        if (event.getEntity() != null && mc.player != null) {
-            if (!event.isPre() && event.getEntity().isAttackable() && event.getEntity() != mc.player) {
-                if (bypass.getValue()) {
-                    System.out.println("Velo bypassing - hit");
-                    isTemporarilyDisabled = true;
-                    velocityDetectedTime = System.currentTimeMillis();
-                    storedPackets.clear();
-                    storedTransactions.clear();
-                    sending.set(false);
-                }
-            }
-
-            if (!event.isPre() && event.getEntity() == mc.player) {
-                if (bypass.getValue()) {
-                    System.out.println("Velo bypassing - hiting");
-                    isTemporarilyDisabled = true;
-                    velocityDetectedTime = System.currentTimeMillis();
-                    storedPackets.clear();
-                    storedTransactions.clear();
-                    sending.set(false);
-                }
-            }
-        }
-    }
-
-
     @EventHandler
     public void onPacketReceive(PacketEvent.Receive event) {
-        if (event.getPacket() instanceof EntityVelocityUpdateS2CPacket) {
-            EntityVelocityUpdateS2CPacket packet = (EntityVelocityUpdateS2CPacket) event.getPacket();
-
-            if (packet.getId() == mc.player.getId()) {
-                if (bypass.getValue()) {
-                    System.out.println("Velo bypassing");
-                    isTemporarilyDisabled = true;
-                    velocityDetectedTime = System.currentTimeMillis();
-
-                    storedPackets.clear();
-                    storedTransactions.clear();
-                    sending.set(false);
-                }
-            }
+        if (!bypass.getValue() && event.getPacket() instanceof EntityVelocityUpdateS2CPacket vel && vel.getId() == mc.player.getId()) {
+            disable(isRu() ? "Выключенно из-за велосити!" : "Disabled due to velocity!");
         }
-
-        if (pingPackets.isEmpty()) return;
-
-        new HashSet<>(pingPackets.keySet()).forEach(packet -> {
-            if (System.currentTimeMillis() - pingPackets.get(packet) >= pingDelay.getValue()) {
-                mc.getNetworkHandler().sendPacket(packet);
-                pingPackets.remove(packet);
-            }
-        });
-
-
     }
 
     @EventHandler
     public void onPacketSend(PacketEvent.Send event) {
         if (fullNullCheck()) return;
-        if (isTemporarilyDisabled) return;
 
         Packet<?> packet = event.getPacket();
 
@@ -186,15 +119,6 @@ public class FakeLag extends Module {
                 storedPackets.add(packet);
             }
         }
-
-        if (pingSpoof.getValue() && packet instanceof KeepAliveC2SPacket keepAlivePacket) {
-            if (pingPackets.containsKey(keepAlivePacket)) {
-                pingPackets.remove(keepAlivePacket);
-                return;
-            }
-            pingPackets.put(keepAlivePacket, System.currentTimeMillis());
-            event.cancel();
-        }
     }
 
     @EventHandler
@@ -202,13 +126,6 @@ public class FakeLag extends Module {
         if (fullNullCheck()) return;
 
         long currentTime = System.currentTimeMillis();
-        if (isTemporarilyDisabled) {
-            if (System.currentTimeMillis() - velocityDetectedTime >= 1000) {
-                isTemporarilyDisabled = false;
-            } else {
-                return;
-            }
-        }
 
         if (blink.getValue() && currentTime - lastBlinkToggle >= blinkTime.getValue()) {
             blinkState = !blinkState;

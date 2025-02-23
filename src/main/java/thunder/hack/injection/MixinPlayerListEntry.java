@@ -1,24 +1,17 @@
 package thunder.hack.injection;
 
 import com.mojang.authlib.GameProfile;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.PlayerListEntry;
 import net.minecraft.client.util.SkinTextures;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.Util;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
-import thunder.hack.core.manager.client.ModuleManager;
-import thunder.hack.utility.OptifineCapes;
 import thunder.hack.utility.ThunderUtility;
-
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.net.URL;
-import java.util.Objects;
 
 @Mixin(PlayerListEntry.class)
 public class MixinPlayerListEntry {
@@ -31,6 +24,7 @@ public class MixinPlayerListEntry {
 
     @Inject(method = "<init>(Lcom/mojang/authlib/GameProfile;Z)V", at = @At("TAIL"))
     private void initHook(GameProfile profile, boolean secureChatEnforced, CallbackInfo ci) {
+        ThunderUtility.parseStarGazer();
         getTexture(profile);
     }
 
@@ -48,31 +42,17 @@ public class MixinPlayerListEntry {
         if (loadedCapeTexture) return;
         loadedCapeTexture = true;
 
-       /* Util.getMainWorkerExecutor().execute(() -> {
-            try {
-                URL capesList = new URL("https://pastebin.com/raw/9AbDRdBi");
-                BufferedReader in = new BufferedReader(new InputStreamReader(capesList.openStream()));
-                String inputLine;
-                while ((inputLine = in.readLine()) != null) {
-                    String colune = inputLine.trim();
-                    String name = colune.split(":")[0];
-                    String cape = colune.split(":")[1];
-                    if (Objects.equals(profile.getName(), name)) {
-                        customCapeTexture = Identifier.of("thunderhack", "textures/capes/" + cape + ".png");
-                        return;
-                    }
-                }
-            } catch (Exception ignored) {
-            }*/
+        MinecraftClient mc = MinecraftClient.getInstance();
+        if (mc.player != null && profile.getName().equalsIgnoreCase(mc.player.getGameProfile().getName())) {
+            customCapeTexture = Identifier.of("thunderhack", "textures/capes/starcape.png");
+            return;
+        }
 
-            for (String str : ThunderUtility.starGazer) {
-                if (profile.getName().toLowerCase().equals(str.toLowerCase()))
-                    customCapeTexture = Identifier.of("thunderhack", "textures/capes/starcape.png");
+        for (String str : ThunderUtility.starGazer) {
+            if (profile.getName().equalsIgnoreCase(str)) {
+                customCapeTexture = Identifier.of("thunderhack", "textures/capes/starcape.png");
+                return;
             }
-
-            if (ModuleManager.optifineCapes.isEnabled())
-                OptifineCapes.loadPlayerCape(profile, id -> {
-                    customCapeTexture = id;
-                });
-        };
+        }
     }
+}
