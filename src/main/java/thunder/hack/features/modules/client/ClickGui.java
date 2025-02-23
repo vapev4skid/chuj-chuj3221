@@ -110,6 +110,8 @@ public class ClickGui extends Module {
         Smile("smile.png", 324, 406, new int[]{500, 40}, 500),
         Bat("bat.png", 352, 503, new int[]{500, 40}, 500),
         Gacha("gacha.png", 592, 592, new int[]{500, 60}, 500),
+        mimi("mimi.png", 592, 592, new int[]{500, 60}, 300),
+        mimitokox("mimitokox.png", 246, 238, new int[]{500, 60}, 500),
         NFT("nft.png", 562, 494, new int[]{400, 110}, 500),
         ThousandSeven("thousand_seven.png", 380, 336, new int[]{400, 130}, 500);
 

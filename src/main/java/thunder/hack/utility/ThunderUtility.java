@@ -174,37 +174,37 @@ public final class ThunderUtility {
         }
     }
 
-
-    public static void parseStarGazer() {
-        List<String> onlinePlayers = new ArrayList<>();
-        try {
-            URL url = new URL("https://plagai.org/apimimi/api?viev");
-            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-            connection.setRequestMethod("GET");
-            connection.setConnectTimeout(5000);
-            connection.setReadTimeout(5000);
-
-            BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-            StringBuilder response = new StringBuilder();
-            String line;
-
-            while ((line = reader.readLine()) != null) {
-                response.append(line);
-            }
-            reader.close();
-
-            String[] players = response.toString().split(",");
-            for (String player : players) {
-                onlinePlayers.add(player.trim());
-            }
-
-            starGazer.clear();
-            starGazer.addAll(onlinePlayers);
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
+//
+//    public static void parseStarGazer() {
+//        List<String> onlinePlayers = new ArrayList<>();
+//        try {
+//            URL url = new URL("https://plagai.org/apimimi/api?viev");
+//            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+//            connection.setRequestMethod("GET");
+//            connection.setConnectTimeout(5000);
+//            connection.setReadTimeout(5000);
+//
+//            BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+//            StringBuilder response = new StringBuilder();
+//            String line;
+//
+//            while ((line = reader.readLine()) != null) {
+//                response.append(line);
+//            }
+//            reader.close();
+//
+//            String[] players = response.toString().split(",");
+//            for (String player : players) {
+//                onlinePlayers.add(player.trim());
+//            }
+//
+//            starGazer.clear();
+//            starGazer.addAll(onlinePlayers);
+//
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
+//    }
 
     public static void syncContributors() {
         try {

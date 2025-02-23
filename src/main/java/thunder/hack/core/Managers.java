@@ -56,7 +56,7 @@ public class Managers {
 
         ASYNC.run(() -> {
             ThunderUtility.syncContributors();
-            ThunderUtility.parseStarGazer();
+//            ThunderUtility.parseStarGazer();
             TELEMETRY.fetchData();
         });
     }

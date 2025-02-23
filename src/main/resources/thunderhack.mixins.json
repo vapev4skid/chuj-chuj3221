@@ -39,7 +39,6 @@
     "MixinMultiplayerScreen",
     "MixinOtherClientPlayerEntity",
     "MixinParticleManager",
-    "MixinPlayerListEntry",
     "MixinPlayerListHud",
     "MixinScreen",
     "MixinShaderEffect",
