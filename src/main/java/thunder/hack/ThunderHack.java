@@ -68,7 +68,6 @@ public class ThunderHack implements ModInitializer {
         BUILD_DATE = ThunderUtility.readManifestField("Build-Timestamp");
         GITHUB_HASH = ThunderUtility.readManifestField("Git-Commit");
         ThunderUtility.syncVersion();
-        ThunderUtility.checkLicense();
 
         EVENT_BUS.registerLambdaFactory("thunder.hack",
                 (lookupInMethod, klass) -> (MethodHandles.Lookup) lookupInMethod.invoke(null, klass, MethodHandles.lookup()));

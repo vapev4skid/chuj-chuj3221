@@ -22,15 +22,27 @@ public class ChatSpammer extends Module {
         long currentTime = System.currentTimeMillis();
         if (currentTime - lastSpamTime >= spamDaily.getValue() * 1000L) {
             String message = spamText.getValue();
+            String processedMessage = processMessage(message);
 
             if (antiDetected.getValue()) {
-                message =  message + " [" + getRandomString(8) + "]";
+                processedMessage = processedMessage + " [" + getRandomString(8) + "]";
             }
 
-            mc.player.networkHandler.sendChatMessage(message);
+            mc.player.networkHandler.sendChatMessage(processedMessage);
 
             lastSpamTime = currentTime;
         }
+    }
+
+    private String processMessage(String input) {
+        StringBuilder processed = new StringBuilder();
+        for (char c : input.toCharArray()) {
+            processed.append(c);
+            if (c == ' ') {
+                processed.append(' ');
+            }
+        }
+        return processed.toString();
     }
 
     private String getRandomString(int length) {
