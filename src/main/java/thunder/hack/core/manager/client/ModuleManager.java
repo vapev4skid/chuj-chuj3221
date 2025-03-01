@@ -91,6 +91,7 @@ public class ModuleManager implements IManager {
     public static RadyNotification radyNotification = new RadyNotification();
     public static KillCommand killCommand = new KillCommand();
     public static ChestCounter chestCounter = new ChestCounter();
+    public static Damage damage = new Damage();
     public static StashLogger stashLogger = new StashLogger();
     public static FastLatency fastLatency = new FastLatency();
     public static PearlChaser pearlChaser = new PearlChaser();
