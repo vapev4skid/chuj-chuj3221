@@ -18,10 +18,20 @@ public class FastUse extends Module {
     public Setting<Boolean> xp = new Setting<>("XP", false);
     public Setting<Boolean> all = new Setting<>("All", true);
 
+    public Setting<Boolean> fastSlotEnabled = new Setting<>("FastSlot", false);
+    public Setting<Integer> slot = new Setting<>("Slot", 1, 1, 9, v -> fastSlotEnabled.getValue());
+
     @Override
     public void onUpdate() {
-        if (check(mc.player.getMainHandStack().getItem()) && ((IMinecraftClient) mc).getUseCooldown() > delay.getValue())
+        if (mc.player == null) return;
+
+        Item currentItem = mc.player.getMainHandStack().getItem();
+
+        if (fastSlotEnabled.getValue() && mc.player.getInventory().selectedSlot + 1 != slot.getValue()) return;
+
+        if (check(currentItem) && ((IMinecraftClient) mc).getUseCooldown() > delay.getValue()) {
             ((IMinecraftClient) mc).setUseCooldown(delay.getValue());
+        }
     }
 
     public boolean check(Item item) {
