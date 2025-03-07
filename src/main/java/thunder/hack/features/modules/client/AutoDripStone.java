@@ -22,7 +22,7 @@ import static thunder.hack.utility.player.InteractionUtility.checkNearBlocks;
 
 public class AutoDripStone extends Module {
     Setting<Integer> range = new Setting<>("Range", 3, 1, 5);
-    Setting<Integer> delay = new Setting<>("Delay", 400, 150, 1500);
+    Setting<Integer> delay = new Setting<>("Delay", 1, 1, 1500);
     Setting<Boolean> silentSwitch = new Setting<>("SilentSwitch", true);
     Timer timer = new Timer();
 
@@ -76,7 +76,7 @@ public class AutoDripStone extends Module {
     }
 
     void holdRightClickOnTrapdoor(BlockPos trapdoorPos) {
-        if (!timer.passedMs(200)) return;
+        if (!timer.passedMs(1)) return;
         BlockHitResult hitResult = new BlockHitResult(mc.player.getPos(), Direction.UP, trapdoorPos, false);
         sendPacket(new PlayerInteractBlockC2SPacket(Hand.MAIN_HAND, hitResult, 0));
         sendPacket(new HandSwingC2SPacket(Hand.MAIN_HAND));
@@ -93,7 +93,7 @@ public class AutoDripStone extends Module {
     void placeBlock(InteractionUtility.BlockPosWithFacing block) {
         BlockHitResult bhr = new BlockHitResult(block.position().toCenterPos().add(new Vec3d(block.facing().getUnitVector()).multiply(0.5)), block.facing(), block.position(), false);
 
-        if (!timer.passedMs(200)) return;
+        if (!timer.passedMs(1)) return;
         sendPacket(new PlayerInteractBlockC2SPacket(Hand.MAIN_HAND, bhr, 0));
         sendPacket(new HandSwingC2SPacket(Hand.MAIN_HAND));
     }
