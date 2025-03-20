@@ -266,6 +266,7 @@ public class ModuleManager implements IManager {
     public static Regen regen = new Regen();
     public static Speed speed = new Speed();
     public static Reach reach = new Reach();
+    public static ACDetector grimACDetector = new ACDetector();
     public static Radar radar = new Radar();
     public static Nuker nuker = new Nuker();
     public static Media media = new Media();

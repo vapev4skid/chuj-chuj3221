@@ -25,39 +25,50 @@ public class TridentBoost extends Module {
     public final Setting<Boolean> anyWeather = new Setting<>("AnyWeather", true);
 
     private enum Mode {
-        Motion, Factor
+        Motion, Factor, None
     }
 
     @EventHandler
     public void onUseTrident(UseTridentEvent e) {
         if (mc.player.getItemUseTime() >= cooldown.getValue()) {
             float j = EnchantmentHelper.getTridentSpinAttackStrength(mc.player.getActiveItem(), mc.player);
-            if (anyWeather.getValue() || mc.player.isTouchingWaterOrRain()) {
-                if (j > 0) {
-                    float f = mc.player.getYaw();
-                    float g = mc.player.getPitch();
-                    float speedX = -MathHelper.sin(f * 0.017453292F) * MathHelper.cos(g * 0.017453292F);
-                    float speedY = -MathHelper.sin(g * 0.017453292F);
-                    float speedZ = MathHelper.cos(f * 0.017453292F) * MathHelper.cos(g * 0.017453292F);
-                    float plannedSpeed = MathHelper.sqrt(speedX * speedX + speedY * speedY + speedZ * speedZ);
 
-                    float n = mode.is(Mode.Factor) ? factor.getValue() * 3.0F * ((1.0F + (float) j) / 4.0F) : factor.getValue();
+            boolean allowBoost = anyWeather.getValue() || mc.player.isTouchingWaterOrRain() || mode.is(Mode.None);
 
-                    speedX *= n / plannedSpeed;
-                    speedY *= n / plannedSpeed;
-                    speedZ *= n / plannedSpeed;
+            if (allowBoost && j > 0) {
+                float f = mc.player.getYaw();
+                float g = mc.player.getPitch();
+                float speedX = -MathHelper.sin(f * 0.017453292F) * MathHelper.cos(g * 0.017453292F);
+                float speedY = -MathHelper.sin(g * 0.017453292F);
+                float speedZ = MathHelper.cos(f * 0.017453292F) * MathHelper.cos(g * 0.017453292F);
+                float plannedSpeed = MathHelper.sqrt(speedX * speedX + speedY * speedY + speedZ * speedZ);
 
-                    mc.player.addVelocity(speedX, speedY, speedZ);
-                    mc.player.useRiptide(20, 8f, mc.player.getActiveItem());
-
-                    if (mc.player.isOnGround())
-                        mc.player.move(MovementType.SELF, new Vec3d(0.0, 1.1999999284744263, 0.0));
-
-                    RegistryEntry<SoundEvent> registryEntry = EnchantmentHelper.getEffect(mc.player.getActiveItem(), EnchantmentEffectComponentTypes.TRIDENT_SOUND).orElse(SoundEvents.ITEM_TRIDENT_THROW);
-                    mc.world.playSoundFromEntity(null, mc.player, registryEntry.value(), SoundCategory.PLAYERS, 1.0F, 1.0F);
+                float n;
+                if (mode.is(Mode.Factor)) {
+                    n = factor.getValue() * 3.0F * ((1.0F + j) / 4.0F);
+                } else if (mode.is(Mode.Motion)) {
+                    n = factor.getValue();
+                } else {
+                    n = 3.0F;
                 }
+
+                speedX *= n / plannedSpeed;
+                speedY *= n / plannedSpeed;
+                speedZ *= n / plannedSpeed;
+
+                mc.player.addVelocity(speedX, speedY, speedZ);
+                mc.player.useRiptide(20, 8f, mc.player.getActiveItem());
+
+                if (mc.player.isOnGround()) {
+                    mc.player.move(MovementType.SELF, new Vec3d(0.0, 1.1999999284744263, 0.0));
+                }
+
+                RegistryEntry<SoundEvent> registryEntry = EnchantmentHelper.getEffect(mc.player.getActiveItem(), EnchantmentEffectComponentTypes.TRIDENT_SOUND)
+                        .orElse(SoundEvents.ITEM_TRIDENT_THROW);
+                mc.world.playSoundFromEntity(null, mc.player, registryEntry.value(), SoundCategory.PLAYERS, 1.0F, 1.0F);
             }
         }
+
         e.cancel();
     }
 }
