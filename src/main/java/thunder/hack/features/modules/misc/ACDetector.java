@@ -36,12 +36,10 @@ public class ACDetector extends Module {
     private final Setting<Boolean> noFallCheck = new Setting<>("NoFall", true).addToGroup(checksGroup);
     private final Setting<Boolean> jesusCheck = new Setting<>("Jesus", true).addToGroup(checksGroup);
     private final Setting<Boolean> inventoryMoveCheck = new Setting<>("InventoryMove", true).addToGroup(checksGroup);
-
-
     private final Setting<Boolean> notfoundcheck = new Setting<>("NotFoundChecks", true);
     public final Setting<Boolean> notify = new Setting<>("Notify", true);
     public final Setting<Boolean> song = new Setting<>("Song", false);
-
+    private final Setting<Boolean> antiFakeFlag = new Setting<>("AntiFakeFlag", false);
     private Vec3d lastPos = Vec3d.ZERO;
     private Vec3d lastServerPos = Vec3d.ZERO;
     private BlockPos lastBlockPos;
@@ -49,7 +47,6 @@ public class ACDetector extends Module {
     private double lastFallDistance = 0;
     private int airTicks = 0;
     private boolean gotHit = false;
-
     private int speedVerbose = 0;
     private int reachVerbose = 0;
     private int timerVerbose = 0;
@@ -63,22 +60,23 @@ public class ACDetector extends Module {
     private int inventoryMoveVerbose = 0;
     private boolean enderPearlThrown = false;
     private long lastPearlTime = 0;
-
     private long lastVelocityTick = -1;
     private boolean expectingVelocity = false;
     private long lastTimerCheckTime = System.currentTimeMillis();
     private int clientTicks = 0;
+    private boolean wasKnockedByFireball = false;
+    private long lastFireballTime = 0;
+    private long lastPPLPacketTime = 0;
 
     public ACDetector() {
         super("AntiCheatDetector", Category.MISC);
     }
 
-
-
     @EventHandler
     public void onSync(EventSync e) {
         if (mc.player == null || mc.world == null) return;
         clientTicks++;
+        if (wasKnockedByFireball && System.currentTimeMillis() - lastFireballTime >= 1000) wasKnockedByFireball = false;
         if (speedCheck.getValue()) checkSpeed();
         if (timerCheck.getValue()) checkTimer();
         if (simulationCheck.getValue()) checkSimulation();
@@ -92,9 +90,13 @@ public class ACDetector extends Module {
     public void onAttack(EventAttack e) {
         if (!reachCheck.getValue()) return;
         if (e.getEntity() == null) return;
-
+        String entityStr = e.getEntity().toString().toLowerCase();
+        if (entityStr.contains("fireball")) {
+            wasKnockedByFireball = true;
+            lastFireballTime = System.currentTimeMillis();
+            return;
+        }
         double distance = mc.player.distanceTo(e.getEntity());
-
         if (distance > 3.5 && Managers.SERVER.getPing() < 150 && Managers.SERVER.getTPS() > 18) {
             reachVerbose++;
             if (reachVerbose >= 5) {
@@ -105,7 +107,6 @@ public class ACDetector extends Module {
         } else {
             reachVerbose = Math.max(reachVerbose - 1, 0);
         }
-
         if (e.getEntity() instanceof Entity && e.isPre()) {
             gotHit = true;
         }
@@ -113,17 +114,13 @@ public class ACDetector extends Module {
 
     @EventHandler
     public void onPacketReceive(PacketEvent.Receive e) {
-
-        if (!notfoundcheck.getValue()) return;
-
         if (e.getPacket() instanceof PlayerPositionLookS2CPacket) {
-            if (enderPearlThrown && (System.currentTimeMillis() - lastPearlTime) < 1000) {
-                return;
+            lastPPLPacketTime = System.currentTimeMillis();
+            if (enderPearlThrown && (System.currentTimeMillis() - lastPearlTime) < 1000) return;
+            if (!antiFakeFlag.getValue()) {
+                sendClientGrimFlag("Flag not found", velocityVerbose, "You are flagged but not found flag.");
             }
-
-            sendClientGrimFlag("Flag not found", velocityVerbose, "You are flagged but not found flag.");
         }
-
         if (e.getPacket() instanceof EntityVelocityUpdateS2CPacket packet) {
             if (packet.getId() == mc.player.getId() && gotHit) {
                 expectingVelocity = true;
@@ -131,7 +128,6 @@ public class ACDetector extends Module {
                 gotHit = false;
             }
         }
-
         if (expectingVelocity) {
             if (mc.player.age - lastVelocityTick > 1) {
                 if (mc.player.getVelocity().length() < 0.08 && mc.player.isOnGround()) {
@@ -151,14 +147,12 @@ public class ACDetector extends Module {
 
     @EventHandler
     public void onPacketSend(PacketEvent.Send e) {
-
         if (e.getPacket() instanceof PlayerInteractItemC2SPacket packet) {
             if (mc.player.getStackInHand(packet.getHand()).getItem().toString().toLowerCase().contains("ender_pearl")) {
                 enderPearlThrown = true;
                 lastPearlTime = System.currentTimeMillis();
             }
         }
-
         if (badPacketsCheck.getValue() && e.getPacket() instanceof PlayerMoveC2SPacket) {
             if (mc.player.getVelocity().lengthSquared() > 15) {
                 badPacketsVerbose++;
@@ -171,7 +165,6 @@ public class ACDetector extends Module {
                 badPacketsVerbose = Math.max(badPacketsVerbose - 1, 0);
             }
         }
-
         if (fastBreakCheck.getValue() && e.getPacket() instanceof PlayerActionC2SPacket packet) {
             if (packet.getAction() == PlayerActionC2SPacket.Action.STOP_DESTROY_BLOCK) {
                 BlockPos pos = packet.getPos();
@@ -179,10 +172,8 @@ public class ACDetector extends Module {
                 if (state.isAir()) return;
                 float hardness = state.getBlock().getHardness();
                 if (hardness <= 0) return;
-
                 double expectedBreakTime = hardness * 1.5;
                 long breakTime = System.currentTimeMillis() - lastBlockBreakTime;
-
                 if (lastBlockPos != null && lastBlockPos.equals(pos)) {
                     if (breakTime < expectedBreakTime * 0.15 && !mc.player.hasStatusEffect(StatusEffects.HASTE)) {
                         fastBreakVerbose++;
@@ -195,7 +186,6 @@ public class ACDetector extends Module {
                         fastBreakVerbose = Math.max(fastBreakVerbose - 1, 0);
                     }
                 }
-
                 lastBlockPos = pos;
                 lastBlockBreakTime = System.currentTimeMillis();
             }
@@ -208,30 +198,24 @@ public class ACDetector extends Module {
             airTicks = 0;
             return;
         }
-
         boolean inCobweb = mc.world.getBlockState(mc.player.getBlockPos()).getBlock().getTranslationKey().contains("cobweb");
         boolean inWater = mc.player.isTouchingWater();
         boolean onLadder = mc.player.isClimbing();
-
         if (inCobweb || inWater || onLadder) {
             flyVerbose = 0;
             airTicks = 0;
             return;
         }
-
         if (!mc.player.isOnGround()) {
             airTicks++;
         } else {
             airTicks = 0;
             flyVerbose = Math.max(flyVerbose - 1, 0);
         }
-
         if (airTicks > 15) {
             double motionY = mc.player.getVelocity().y;
-
             boolean invalidMotionY = motionY > 0.42 || motionY == 0;
             boolean noGravity = !mc.player.hasNoGravity();
-
             if (invalidMotionY && noGravity) {
                 flyVerbose++;
                 if (flyVerbose >= 5) {
@@ -246,16 +230,15 @@ public class ACDetector extends Module {
         }
     }
 
-
     private void checkNoFall() {
+        if (enderPearlThrown && (System.currentTimeMillis() - lastPearlTime < 1000)) return;
+        if (wasKnockedByFireball && (System.currentTimeMillis() - lastFireballTime < 1000)) return;
         if (mc.player.isFallFlying() || mc.player.getAbilities().flying || mc.player.hasStatusEffect(StatusEffects.LEVITATION)) {
             noFallVerbose = 0;
             return;
         }
-
         if (lastFallDistance > 3.5 && mc.player.fallDistance == 0 && mc.player.isOnGround()) {
             boolean isOnSlime = mc.world.getBlockState(mc.player.getBlockPos().down()).getBlock().getTranslationKey().contains("slime");
-
             if (!isOnSlime && mc.player.hurtTime <= 0) {
                 noFallVerbose++;
                 if (noFallVerbose >= 5) {
@@ -267,7 +250,6 @@ public class ACDetector extends Module {
                 noFallVerbose = Math.max(noFallVerbose - 1, 0);
             }
         }
-
         lastFallDistance = mc.player.fallDistance;
     }
 
@@ -276,7 +258,6 @@ public class ACDetector extends Module {
             jesusVerbose = 0;
             return;
         }
-
         if (mc.player.isTouchingWater() && !mc.player.isSwimming() && Math.abs(mc.player.getVelocity().y) < 0.005) {
             jesusVerbose++;
             if (jesusVerbose >= 8) {
@@ -292,7 +273,6 @@ public class ACDetector extends Module {
     private void checkInventoryMove() {
         if (mc.currentScreen != null && mc.player.currentScreenHandler != mc.player.playerScreenHandler) {
             boolean isMoving = mc.options.forwardKey.isPressed() || mc.options.backKey.isPressed() || mc.options.leftKey.isPressed() || mc.options.rightKey.isPressed();
-
             if (isMoving) {
                 inventoryMoveVerbose++;
                 if (inventoryMoveVerbose >= 5) {
@@ -309,23 +289,26 @@ public class ACDetector extends Module {
     }
 
     private void checkSpeed() {
+        BlockState blockBelow = mc.world.getBlockState(mc.player.getBlockPos().down());
+        if (blockBelow.getBlock().getTranslationKey().contains("slime")) {
+            speedVerbose = 0;
+            lastPos = mc.player.getPos();
+            return;
+        }
         if (mc.player.fallDistance > 0) {
             speedVerbose = 0;
             lastPos = mc.player.getPos();
             return;
         }
-
         Vec3d pos = mc.player.getPos();
         double distance = pos.distanceTo(lastPos);
         double maxAllowedSpeed = getMaxAllowedSpeed();
-
         boolean hasSpeed = mc.player.hasStatusEffect(StatusEffects.SPEED);
         boolean hasJumpBoost = mc.player.hasStatusEffect(StatusEffects.JUMP_BOOST);
         boolean hasLevitation = mc.player.hasStatusEffect(StatusEffects.LEVITATION);
         boolean isInKnockback = mc.player.hurtTime > 0;
         boolean isFlying = mc.player.getAbilities().flying;
         boolean isElytraFlying = mc.player.isFallFlying();
-
         if (!hasSpeed && !hasJumpBoost && !hasLevitation && !isInKnockback && !isFlying && !isElytraFlying) {
             if (distance > maxAllowedSpeed && distance >= 0.710) {
                 speedVerbose++;
@@ -338,7 +321,6 @@ public class ACDetector extends Module {
                 speedVerbose = Math.max(speedVerbose - 1, 0);
             }
         }
-
         lastPos = pos;
     }
 
@@ -348,7 +330,6 @@ public class ACDetector extends Module {
         if (elapsed >= 1000L) {
             float ticksPerSecond = clientTicks * 1000f / elapsed;
             float serverTPS = Managers.SERVER.getTPS();
-
             if (ticksPerSecond > 55) {
                 timerVerbose++;
                 if (timerVerbose >= 5) {
@@ -359,24 +340,36 @@ public class ACDetector extends Module {
             } else {
                 timerVerbose = Math.max(timerVerbose - 1, 0);
             }
-
             clientTicks = 0;
             lastTimerCheckTime = currentTime;
         }
     }
 
     private void checkSimulation() {
+        BlockState blockBelow = mc.world.getBlockState(mc.player.getBlockPos().down());
+        if (blockBelow.getBlock().getTranslationKey().contains("slime")) {
+            simulationVerbose = 0;
+            lastServerPos = mc.player.getPos();
+            return;
+        }
+        if (enderPearlThrown && (System.currentTimeMillis() - lastPearlTime < 1000)) {
+            simulationVerbose = 0;
+            lastServerPos = mc.player.getPos();
+            return;
+        }
+        if (wasKnockedByFireball && (System.currentTimeMillis() - lastFireballTime < 1000)) {
+            simulationVerbose = 0;
+            lastServerPos = mc.player.getPos();
+            return;
+        }
         Vec3d serverPos = mc.player.getPos();
         double posDiff = serverPos.distanceTo(lastServerPos);
-
         boolean isInKnockback = mc.player.hurtTime > 0;
-
         if (mc.player.fallDistance > 0 || isInKnockback) {
             simulationVerbose = 0;
             lastServerPos = serverPos;
             return;
         }
-
         if (posDiff > 0.75) {
             simulationVerbose++;
             if (simulationVerbose >= 5) {
@@ -387,7 +380,6 @@ public class ACDetector extends Module {
         } else {
             simulationVerbose = Math.max(simulationVerbose - 1, 0);
         }
-
         lastServerPos = serverPos;
     }
 
@@ -402,20 +394,16 @@ public class ACDetector extends Module {
     }
 
     private void sendClientGrimFlag(String type, int verbose, String extraInfo) {
-        String chatMessage = "§7(ClientSide) §dAntiCheat §8>> §f" + mc.player.getGameProfile().getName() +
-                " §dfailed §f" + type + " (x§c" + verbose + "§f) §7" + extraInfo;
-
-        String notifyMessage = "§dAntiCheat §8>> §f" + mc.player.getGameProfile().getName() +
-                " §dfailed §f" + type + " (x§c" + verbose + "§f) §7" + extraInfo;
-
+        long currentTime = System.currentTimeMillis();
+        if (antiFakeFlag.getValue() && currentTime - lastPPLPacketTime > 3000) return;
+        String chatMessage = "§7(ClientSide) §dAntiCheat §8>> §f" + mc.player.getGameProfile().getName() + " §dfailed §f" + type + " (x§c" + verbose + "§f) §7" + extraInfo;
+        String notifyMessage = "§dAntiCheat §8>> §f" + mc.player.getGameProfile().getName() + " §dfailed §f" + type + " (x§c" + verbose + "§f) §7" + extraInfo;
         if (notify.getValue()) {
             mc.player.sendMessage(Text.literal(chatMessage), false);
             Managers.NOTIFICATION.publicity("", notifyMessage, 3, Notification.Type.WARNING);
         }
-
         if (song.getValue()) {
             mc.world.playSound(mc.player, mc.player.getBlockPos(), SoundEvents.ENTITY_EXPERIENCE_ORB_PICKUP, SoundCategory.BLOCKS, 1f, 1f);
         }
     }
-
 }
