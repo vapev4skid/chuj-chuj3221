@@ -26,9 +26,21 @@ public class AutoSprint extends Module {
                 && (!ModuleManager.aura.isEnabled() || Aura.target == null || !pauseWhileAura.getValue());
 
         if (allowSwimSprint.getValue()) {
-            canSprint = canSprint || (mc.player.isTouchingWater() || mc.player.isInLava());
+            if (mc.player.isTouchingWater() || mc.player.isInLava()) {
+                if (algorytm()) {
+                    canSprint = true;
+                } else {
+                    canSprint = false;
+                }
+            }
         }
 
         mc.player.setSprinting(canSprint);
+    }
+
+    private boolean algorytm() {
+        return mc.player.input.movementForward != 0
+                || mc.player.input.movementSideways != 0
+                || mc.options.jumpKey.isPressed();
     }
 }
