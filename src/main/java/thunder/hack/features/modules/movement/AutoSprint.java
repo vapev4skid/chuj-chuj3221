@@ -40,7 +40,6 @@ public class AutoSprint extends Module {
 
     private boolean algorytm() {
         return mc.player.input.movementForward != 0
-                || mc.player.input.movementSideways != 0
-                || mc.options.jumpKey.isPressed();
+                || mc.player.input.movementSideways != 0;
     }
 }
