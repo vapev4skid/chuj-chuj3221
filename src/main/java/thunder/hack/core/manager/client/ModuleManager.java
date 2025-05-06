@@ -71,6 +71,7 @@ public class ModuleManager implements IManager {
     public static AntiBallPlace antiBallPlace = new AntiBallPlace();
     public static TridentBoost tridentBoost = new TridentBoost();
     public static AutoShield autoShield = new AutoShield();
+    public static TridentFly tridentFly = new TridentFly();
     public static Trajectories trajectories = new Trajectories();
     public static TargetStrafe targetStrafe = new TargetStrafe();
     public static RadarRewrite radarRewrite = new RadarRewrite();
@@ -239,6 +240,7 @@ public class ModuleManager implements IManager {
     public static TargetSpeed targetSpeed = new TargetSpeed();
     public static AntiBot antiBot = new AntiBot();
     public static AutoSex autoSex = new AutoSex();
+    public static WolfiVSynch wolfiVSynch = new WolfiVSynch();
     public static Tracers tracers = new Tracers();
     public static FireSpam fireSpam = new FireSpam();
     public static Parkour parkour = new Parkour();
@@ -258,8 +260,8 @@ public class ModuleManager implements IManager {
     public static AutoEZ autoEZ = new AutoEZ();
     public static AimBot aimBot = new AimBot();
     public static AntiFireBall antiFireBall = new AntiFireBall();
-    public static AntiTooManyPacket antiTooManyPacket = new AntiTooManyPacket();
     public static Quiver quiver = new Quiver();
+    public static AntiTrap antiTrap = new AntiTrap();
     public static NoPush noPush = new NoPush();
     public static UnHook unHook = new UnHook();
     public static Avoid avoid = new Avoid();
