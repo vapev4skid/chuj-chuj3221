@@ -62,8 +62,22 @@ public class SoundManager implements IManager {
     public SoundEvent CRIT_SOUNDEVENT = SoundEvent.of(CRIT_SOUND);
     public final Identifier CUTIE_SOUND = Identifier.of("thunderhack:cutie");
     public SoundEvent CUTIE_SOUNDEVENT = SoundEvent.of(CUTIE_SOUND);
-
-
+    public final Identifier ENABLE_SOUND1 = Identifier.of("thunderhack:enable1");
+    public SoundEvent ENABLE_SOUNDEVENT1 = SoundEvent.of(ENABLE_SOUND1);
+    public final Identifier ENABLE_SOUND2 = Identifier.of("thunderhack:enable2");
+    public SoundEvent ENABLE_SOUNDEVENT2 = SoundEvent.of(ENABLE_SOUND2);
+    public final Identifier ENABLE_SOUND3 = Identifier.of("thunderhack:enable3");
+    public SoundEvent ENABLE_SOUNDEVENT3 = SoundEvent.of(ENABLE_SOUND3);
+    public final Identifier ENABLE_SOUND4 = Identifier.of("thunderhack:enable4");
+    public SoundEvent ENABLE_SOUNDEVENT4 = SoundEvent.of(ENABLE_SOUND4);
+    public final Identifier DISABLE_SOUND1 = Identifier.of("thunderhack:disable1");
+    public SoundEvent DISABLE_SOUNDEVENT1 = SoundEvent.of(DISABLE_SOUND1);
+    public final Identifier DISABLE_SOUND2 = Identifier.of("thunderhack:disable2");
+    public SoundEvent DISABLE_SOUNDEVENT2 = SoundEvent.of(DISABLE_SOUND2);
+    public final Identifier DISABLE_SOUND3 = Identifier.of("thunderhack:disable3");
+    public SoundEvent DISABLE_SOUNDEVENT3 = SoundEvent.of(DISABLE_SOUND3);
+    public final Identifier DISABLE_SOUND4 = Identifier.of("thunderhack:disable4");
+    public SoundEvent DISABLE_SOUNDEVENT4 = SoundEvent.of(DISABLE_SOUND4);
 
     private final Timer scrollTimer = new Timer();
 
@@ -71,6 +85,15 @@ public class SoundManager implements IManager {
         Registry.register(Registries.SOUND_EVENT, KEYPRESS_SOUND, KEYPRESS_SOUNDEVENT);
         Registry.register(Registries.SOUND_EVENT, KEYRELEASE_SOUND, KEYRELEASE_SOUNDEVENT);
         Registry.register(Registries.SOUND_EVENT, ENABLE_SOUND, ENABLE_SOUNDEVENT);
+        Registry.register(Registries.SOUND_EVENT, ENABLE_SOUND1, ENABLE_SOUNDEVENT1);
+        Registry.register(Registries.SOUND_EVENT, ENABLE_SOUND2, ENABLE_SOUNDEVENT2);
+        Registry.register(Registries.SOUND_EVENT, ENABLE_SOUND3, ENABLE_SOUNDEVENT3);
+        Registry.register(Registries.SOUND_EVENT, ENABLE_SOUND4, ENABLE_SOUNDEVENT4);
+        Registry.register(Registries.SOUND_EVENT, DISABLE_SOUND1, DISABLE_SOUNDEVENT1);
+        Registry.register(Registries.SOUND_EVENT, DISABLE_SOUND2, DISABLE_SOUNDEVENT2);
+        Registry.register(Registries.SOUND_EVENT, DISABLE_SOUND3, DISABLE_SOUNDEVENT3);
+        Registry.register(Registries.SOUND_EVENT, DISABLE_SOUND4, DISABLE_SOUNDEVENT4);
+
         Registry.register(Registries.SOUND_EVENT, DISABLE_SOUND, DISABLE_SOUNDEVENT);
         Registry.register(Registries.SOUND_EVENT, MOAN1_SOUND, MOAN1_SOUNDEVENT);
         Registry.register(Registries.SOUND_EVENT, MOAN2_SOUND, MOAN2_SOUNDEVENT);
@@ -124,6 +147,14 @@ public class SoundManager implements IManager {
             playSound(ENABLE_SOUNDEVENT);
         } else if (ModuleManager.soundFX.enableMode.getValue() == SoundFX.OnOffSound.Custom) {
             playSound("enable");
+        } else if (ModuleManager.soundFX.enableMode.getValue() == SoundFX.OnOffSound.Enable1) {
+            playSound(ENABLE_SOUNDEVENT1);
+        } else if (ModuleManager.soundFX.enableMode.getValue() == SoundFX.OnOffSound.Enable2) {
+            playSound(ENABLE_SOUNDEVENT2);
+        } else if (ModuleManager.soundFX.enableMode.getValue() == SoundFX.OnOffSound.Enable3) {
+            playSound(ENABLE_SOUNDEVENT3);
+        } else if (ModuleManager.soundFX.enableMode.getValue() == SoundFX.OnOffSound.Enable4) {
+            playSound(ENABLE_SOUNDEVENT4);
         }
     }
 
@@ -132,6 +163,14 @@ public class SoundManager implements IManager {
             playSound(DISABLE_SOUNDEVENT);
         } else if (ModuleManager.soundFX.disableMode.getValue() == SoundFX.OnOffSound.Custom) {
             playSound("disable");
+        } else if (ModuleManager.soundFX.disableMode.getValue() == SoundFX.OnOffSound.Disable1) {
+            playSound(DISABLE_SOUNDEVENT1);
+        } else if (ModuleManager.soundFX.disableMode.getValue() == SoundFX.OnOffSound.Disable2) {
+            playSound(DISABLE_SOUNDEVENT2);
+        } else if (ModuleManager.soundFX.disableMode.getValue() == SoundFX.OnOffSound.Disable3) {
+            playSound(DISABLE_SOUNDEVENT3);
+        } else if (ModuleManager.soundFX.disableMode.getValue() == SoundFX.OnOffSound.Disable4) {
+            playSound(DISABLE_SOUNDEVENT4);
         }
     }
 

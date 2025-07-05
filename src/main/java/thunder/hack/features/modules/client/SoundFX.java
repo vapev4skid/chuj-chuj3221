@@ -51,7 +51,7 @@ public final class SoundFX extends Module {
     }
 
     public enum OnOffSound {
-        Custom, Inertia, OFF
+        Custom, Inertia, Enable1, Enable2, Enable3, Enable4, Disable1, Disable2, Disable3, Disable4, OFF,
     }
 
     public enum HitSound {

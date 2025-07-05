@@ -93,5 +93,45 @@
     "sounds": [
       "thunderhack:crit"
     ]
+  },
+  "disable1": {
+    "sounds": [
+      "thunderhack:disable1"
+    ]
+  },
+  "disable2": {
+    "sounds": [
+      "thunderhack:disable2"
+    ]
+  },
+  "disable3": {
+    "sounds": [
+      "thunderhack:disable3"
+    ]
+  },
+  "disable4": {
+    "sounds": [
+      "thunderhack:disable4"
+    ]
+  },
+  "enable1": {
+    "sounds": [
+      "thunderhack:enable1"
+    ]
+  },
+  "enable2": {
+    "sounds": [
+      "thunderhack:enable2"
+    ]
+  },
+  "enable3": {
+    "sounds": [
+      "thunderhack:enable3"
+    ]
+  },
+  "enable4": {
+    "sounds": [
+      "thunderhack:enable4"
+    ]
   }
 }
