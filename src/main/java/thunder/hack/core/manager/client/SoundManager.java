@@ -58,8 +58,11 @@ public class SoundManager implements IManager {
     public SoundEvent PM_SOUNDEVENT = SoundEvent.of(PM_SOUND);
     public final Identifier RIFK_SOUND = Identifier.of("thunderhack:rifk");
     public SoundEvent RIFK_SOUNDEVENT = SoundEvent.of(RIFK_SOUND);
+    public final Identifier CRIT_SOUND = Identifier.of("thunderhack:crit");
+    public SoundEvent CRIT_SOUNDEVENT = SoundEvent.of(CRIT_SOUND);
     public final Identifier CUTIE_SOUND = Identifier.of("thunderhack:cutie");
     public SoundEvent CUTIE_SOUNDEVENT = SoundEvent.of(CUTIE_SOUND);
+
 
 
     private final Timer scrollTimer = new Timer();
@@ -82,6 +85,7 @@ public class SoundManager implements IManager {
         Registry.register(Registries.SOUND_EVENT, SWIPEIN_SOUND, SWIPEIN_SOUNDEVENT);
         Registry.register(Registries.SOUND_EVENT, SWIPEOUT_SOUND, SWIPEOUT_SOUNDEVENT);
         Registry.register(Registries.SOUND_EVENT, ALERT_SOUND, ALERT_SOUNDEVENT);
+        Registry.register(Registries.SOUND_EVENT, CRIT_SOUND, CRIT_SOUNDEVENT);
         Registry.register(Registries.SOUND_EVENT, PM_SOUND, PM_SOUNDEVENT);
         Registry.register(Registries.SOUND_EVENT, RIFK_SOUND, RIFK_SOUNDEVENT);
         Registry.register(Registries.SOUND_EVENT, CUTIE_SOUND, CUTIE_SOUNDEVENT);
@@ -93,6 +97,10 @@ public class SoundManager implements IManager {
             case SKEET -> playSound(SKEET_SOUNDEVENT);
             case KEYBOARD -> playSound(KEYPRESS_SOUNDEVENT);
             case CUTIE -> playSound(CUTIE_SOUNDEVENT);
+            case SUCCESS -> {
+                if (mc.player != null && mc.world != null)
+                    mc.world.playSound(mc.player, mc.player.getBlockPos(), net.minecraft.sound.SoundEvents.ENTITY_EXPERIENCE_ORB_PICKUP, net.minecraft.sound.SoundCategory.BLOCKS, (float) ModuleManager.soundFX.volume.getValue() / 100f, 2.0f);
+            }
             case MOAN -> {
                 SoundEvent sound = switch ((int) (MathUtility.random(0, 3))) {
                     case 0 -> MOAN1_SOUNDEVENT;
@@ -105,6 +113,10 @@ public class SoundManager implements IManager {
             case RIFK -> playSound(RIFK_SOUNDEVENT);
             case CUSTOM -> playSound("hit");
         }
+    }
+
+    public void playCritSound() {
+        playSound(CRIT_SOUNDEVENT);
     }
 
     public void playEnable() {

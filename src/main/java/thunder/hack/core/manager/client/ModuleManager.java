@@ -240,7 +240,6 @@ public class ModuleManager implements IManager {
     public static TargetSpeed targetSpeed = new TargetSpeed();
     public static AntiBot antiBot = new AntiBot();
     public static AutoSex autoSex = new AutoSex();
-    public static WolfiVSynch wolfiVSynch = new WolfiVSynch();
     public static Tracers tracers = new Tracers();
     public static FireSpam fireSpam = new FireSpam();
     public static Parkour parkour = new Parkour();
@@ -273,6 +272,7 @@ public class ModuleManager implements IManager {
     public static Radar radar = new Radar();
     public static Nuker nuker = new Nuker();
     public static Media media = new Media();
+    public static Cape cape = new Cape();
     public static Ghost ghost = new Ghost();
     public static Chams chams = new Chams();
     public static Blink blink = new Blink();

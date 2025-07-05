@@ -3,6 +3,7 @@ package thunder.hack.features.modules.movement;
 import meteordevelopment.orbit.EventHandler;
 import net.minecraft.network.packet.c2s.play.PlayerActionC2SPacket;
 import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket;
+import net.minecraft.network.packet.c2s.play.ClientStatusC2SPacket;
 import net.minecraft.network.packet.s2c.play.EntityVelocityUpdateS2CPacket;
 import net.minecraft.network.packet.s2c.play.PlayerPositionLookS2CPacket;
 import net.minecraft.util.Formatting;
@@ -11,6 +12,7 @@ import thunder.hack.events.impl.PacketEvent;
 import thunder.hack.features.modules.Module;
 import thunder.hack.setting.Setting;
 import thunder.hack.utility.player.MovementUtility;
+import thunder.hack.utility.math.MathUtility;
 
 import static thunder.hack.features.modules.client.ClientSettings.isRu;
 
@@ -30,6 +32,7 @@ public class Flight extends Module {
     private double prevX, prevY, prevZ, velocityMotion;
     public boolean onPosLook = false;
     private int flyTicks = 0;
+    private boolean altTabActive = false;
 
 
     @EventHandler
@@ -71,6 +74,10 @@ public class Flight extends Module {
                 if (mc.player.age % 60 == 0)
                     sendMessage(Formatting.RED + (isRu() ? "В этом режиме нужно ломать блоки!" : "In this mode you need to break blocks!"));
             }
+
+            case AltTab -> {
+                handleAltTabMode();
+            }
         }
 
         if (antiKick.getValue() && (mode.is(Mode.Creative) || mode.is(Mode.Vanilla)))
@@ -103,6 +110,13 @@ public class Flight extends Module {
         if (mode.is(Mode.Creative)) {
             mc.player.getAbilities().flying = true;
             mc.player.getAbilities().setFlySpeed(hSpeed.getValue() / 10f);
+        }
+    }
+
+    @Override
+    public void onEnable() {
+        if (mode.is(Mode.AltTab)) {
+            altTabActive = false;
         }
     }
 
@@ -149,9 +163,45 @@ public class Flight extends Module {
     public void onDisable() {
         mc.player.getAbilities().flying = false;
         mc.player.getAbilities().setFlySpeed(0.05f);
+        
+        if (mode.is(Mode.AltTab) && altTabActive) {
+            simulateAltTabReturn();
+        }
+    }
+
+    private void handleAltTabMode() {
+        if (!altTabActive) {
+            simulateAltTab();
+            altTabActive = true;
+        }
+
+        mc.player.setVelocity(0, 0, 0);
+        mc.player.getAbilities().flying = true;
+        mc.player.getAbilities().setFlySpeed(0.0f);
+    }
+
+    private void simulateAltTab() {
+        sendPacket(new ClientStatusC2SPacket(ClientStatusC2SPacket.Mode.PERFORM_RESPAWN));
+        mc.options.chatKey.setPressed(false);
+        mc.options.inventoryKey.setPressed(false);
+        mc.options.attackKey.setPressed(false);
+        mc.options.useKey.setPressed(false);
+        mc.options.jumpKey.setPressed(false);
+        mc.options.sneakKey.setPressed(false);
+        mc.options.sprintKey.setPressed(false);
+        mc.options.forwardKey.setPressed(false);
+        mc.options.backKey.setPressed(false);
+        mc.options.leftKey.setPressed(false);
+        mc.options.rightKey.setPressed(false);
+    }
+
+    private void simulateAltTabReturn() {
+        sendPacket(new ClientStatusC2SPacket(ClientStatusC2SPacket.Mode.PERFORM_RESPAWN));
+        mc.player.getAbilities().flying = false;
+        mc.player.getAbilities().setFlySpeed(0.05f);
     }
 
     private enum Mode {
-        Vanilla, MatrixJump, AirJump, MatrixGlide, StormBreak, Damage, Creative
+        Vanilla, MatrixJump, AirJump, MatrixGlide, StormBreak, Damage, Creative, AltTab
     }
 }

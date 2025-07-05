@@ -9,6 +9,7 @@ import thunder.hack.features.modules.Module;
 import thunder.hack.features.modules.combat.Aura;
 import thunder.hack.features.modules.combat.AutoCrystal;
 import thunder.hack.setting.Setting;
+import thunder.hack.core.manager.client.ModuleManager;
 
 public final class SoundFX extends Module {
     public SoundFX() {
@@ -19,14 +20,22 @@ public final class SoundFX extends Module {
     public final Setting<OnOffSound> enableMode = new Setting<>("EnableMode", OnOffSound.Inertia);
     public final Setting<OnOffSound> disableMode = new Setting<>("DisableMode", OnOffSound.Inertia);
     public final Setting<HitSound> hitSound = new Setting<>("HitSound", HitSound.OFF);
+    public final Setting<Boolean> critSound = new Setting<>("CritSound", false);
     public final Setting<KillSound> killSound = new Setting<>("KillSound", KillSound.OFF);
     public final Setting<ScrollSound> scrollSound = new Setting<>("ScrollSound", ScrollSound.KeyBoard);
 
     @EventHandler
     @SuppressWarnings("unused")
     public void onAttack(@NotNull EventAttack event) {
-        if (!event.isPre())
-            Managers.SOUND.playHitSound(hitSound.getValue());
+        if (!event.isPre()) {
+            boolean isCrit = critSound.getValue() && (mc.player.fallDistance > 0 || ModuleManager.criticals.isEnabled());
+            
+            if (isCrit) {
+                Managers.SOUND.playCritSound();
+            } else {
+                Managers.SOUND.playHitSound(hitSound.getValue());
+            }
+        }
     }
 
     @EventHandler
@@ -46,7 +55,7 @@ public final class SoundFX extends Module {
     }
 
     public enum HitSound {
-        UWU, MOAN, SKEET, RIFK, KEYBOARD, CUTIE, CUSTOM, OFF
+        UWU, MOAN, SKEET, RIFK, KEYBOARD, CUTIE, SUCCESS, CUSTOM, OFF
     }
 
     public enum KillSound {

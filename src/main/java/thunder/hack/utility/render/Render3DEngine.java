@@ -760,10 +760,11 @@ public class Render3DEngine {
                 Matrix4f matrix = matrices.peek().getPositionMatrix();
                 int color = Render2DEngine.applyOpacity(HudEditor.getColor((int) (180 * offset)), offset).getRGB();
                 float scale = Math.max(0.24f * (offset), 0.2f);
-                buffer.vertex(matrix, -scale, scale, 0).texture(0f, 1f).color(color);
-                buffer.vertex(matrix, scale, scale, 0).texture(1f, 1f).color(color);
-                buffer.vertex(matrix, scale, -scale, 0).texture(1f, 0).color(color);
-                buffer.vertex(matrix, -scale, -scale, 0).texture(0, 0).color(color);
+                Color auraColor = ClientSettings.auraESPColor.getValue().getColorObject();
+                buffer.vertex(matrix, -scale, scale, 0).texture(0f, 1f).color(auraColor.getRGB());
+                buffer.vertex(matrix, scale, scale, 0).texture(1f, 1f).color(auraColor.getRGB());
+                buffer.vertex(matrix, scale, -scale, 0).texture(1f, 0).color(auraColor.getRGB());
+                buffer.vertex(matrix, -scale, -scale, 0).texture(0, 0).color(auraColor.getRGB());
             }
         }
 
