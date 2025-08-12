@@ -1,4 +1,4 @@
-# Thunerhack - edit version by exploitcore (https://discord.gg/xmTwmVNVtq)
+# Thunerhack - edit version by ja z chatgpt
 
 Orginal autor: Pan4ur
 
