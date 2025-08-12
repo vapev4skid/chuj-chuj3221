@@ -1,27 +1,27 @@
 package thunder.hack.features.hud.impl;
 
+import java.awt.Color;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
+
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.math.RotationAxis;
-import thunder.hack.ThunderHack;
 import thunder.hack.core.Managers;
 import thunder.hack.core.manager.client.ModuleManager;
-import thunder.hack.gui.font.FontRenderers;
 import thunder.hack.features.hud.HudElement;
 import thunder.hack.features.modules.client.HudEditor;
 import thunder.hack.features.modules.client.Media;
 import thunder.hack.features.modules.misc.NameProtect;
+import thunder.hack.gui.font.FontRenderers;
 import thunder.hack.setting.Setting;
 import thunder.hack.utility.render.Render2DEngine;
 import thunder.hack.utility.render.Render3DEngine;
 import thunder.hack.utility.render.TextUtil;
 import thunder.hack.utility.render.TextureStorage;
-
-import java.awt.*;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 
 public class WaterMark extends HudElement {
     public
@@ -45,7 +45,7 @@ public class WaterMark extends HudElement {
     );
 
     private enum Mode {
-        Big, Small, Classic, BaltikaClient, Rifk
+        Big, Small, Classic, EasyboostClient, Rifk
     }
 
     public void onRender2D(DrawContext context) {
@@ -54,8 +54,8 @@ public class WaterMark extends HudElement {
 
         if (mode.getValue() == Mode.Big) {
             Render2DEngine.drawHudBase(context.getMatrices(), getPosX(), getPosY(), 106, 30, HudEditor.hudRound.getValue());
-            FontRenderers.thglitch.drawString(context.getMatrices(), "EXPLOITCORE", getPosX() + 5.5, getPosY() + 5, -1);
-            FontRenderers.monsterrat.drawGradientString(context.getMatrices(), "EXPLOTICORE", getPosX() + 35.5f, getPosY() + 21f, 1);
+            FontRenderers.thglitch.drawString(context.getMatrices(), "NANOCORE", getPosX() + 5.5, getPosY() + 5, -1);
+            FontRenderers.monsterrat.drawGradientString(context.getMatrices(), "NANOCORE", getPosX() + 35.5f, getPosY() + 21f, 1);
             setBounds(getPosX(), getPosY(), 106, 30);
         } else if (mode.getValue() == Mode.Small) {
             if (HudEditor.hudStyle.is(HudEditor.HudStyle.Blurry)) {
@@ -70,7 +70,7 @@ public class WaterMark extends HudElement {
 
                 Render2DEngine.drawRect(context.getMatrices(), getPosX() + 13, getPosY() + 1.5f, 0.5f, 11, new Color(0x44FFFFFF, true));
 
-                FontRenderers.sf_bold.drawGradientString(context.getMatrices(), "Exploitcore", getPosX() + 20, getPosY() + 5, 20);
+                FontRenderers.sf_bold.drawGradientString(context.getMatrices(), "NanoCore", getPosX() + 20, getPosY() + 5, 20);
 
                 RenderSystem.blendFunc(GlStateManager.SrcFactor.SRC_ALPHA, GlStateManager.DstFactor.ONE);
                 RenderSystem.setShaderTexture(0, TextureStorage.miniLogo);
@@ -103,14 +103,14 @@ public class WaterMark extends HudElement {
                 setBounds(getPosX(), getPosY(), 100, 15f);
             } else {
                 String info = Formatting.DARK_GRAY + "| " + Formatting.RESET + username.trim() + Formatting.DARK_GRAY + " | " + Formatting.RESET + Managers.SERVER.getPing() + " ms" + Formatting.DARK_GRAY + " | " + Formatting.RESET + (mc.isInSingleplayer() ? "SinglePlayer" : mc.getNetworkHandler().getServerInfo().address);
-                float width = FontRenderers.sf_bold.getStringWidth("Exploticore " + info) + 5;
+                float width = FontRenderers.sf_bold.getStringWidth("NanoCore" + info) + 5;
                 Render2DEngine.drawHudBase(context.getMatrices(), getPosX(), getPosY(), width, 10, 3);
                 FontRenderers.sf_bold.drawGradientString(context.getMatrices(), ru.getValue() ? textUtil + " " : "Exploticore ", getPosX() + 2, getPosY() + 2.5f, 10);
                 FontRenderers.sf_bold.drawString(context.getMatrices(), info, getPosX() + 2 + FontRenderers.sf_bold.getStringWidth("Exploticore "), getPosY() + 2.5f, HudEditor.textColor.getValue().getColor());
                 setBounds(getPosX(), getPosY(), width, 10);
             }
 
-        } else if (mode.getValue() == Mode.BaltikaClient) {
+        } else if (mode.getValue() == Mode.EasyboostClient) {
             Render2DEngine.drawHudBase(context.getMatrices(), getPosX(), getPosY(), 100, 64, HudEditor.hudRound.getValue());
 
             Render2DEngine.addWindow(context.getMatrices(), getPosX(), getPosY(), getPosX() + 100, getPosY() + 64, 1f);
@@ -118,11 +118,11 @@ public class WaterMark extends HudElement {
             context.getMatrices().translate(getPosX() + 10, getPosY() + 32, 0);
             context.getMatrices().multiply(RotationAxis.POSITIVE_Z.rotation((float) Math.toRadians(mc.player.age * 3 + Render3DEngine.getTickDelta())));
             context.getMatrices().translate(-(getPosX() + 10), -(getPosY() + 32), 0);
-            context.drawTexture(TextureStorage.baltika, (int) getPosX() - 10, (int) getPosY() + 2, 0, 0, 40, 64, 40, 64);
+            context.drawTexture(TextureStorage.easyboost, (int) getPosX() - 10, (int) getPosY() + 2, 0, 0, 40, 64, 40, 64);
             context.getMatrices().pop();
             Render2DEngine.popWindow();
 
-            FontRenderers.thglitch.drawString(context.getMatrices(), "Exploticore", getPosX() + 43, getPosY() + 41.5, -1);
+            FontRenderers.thglitch.drawString(context.getMatrices(), "NanoCore", getPosX() + 43, getPosY() + 41.5, -1);
             setBounds(getPosX(), getPosY(), 100, 64);
         } else if (mode.is(Mode.Rifk)) {
             Date date = new Date(System.currentTimeMillis());
@@ -135,7 +135,7 @@ public class WaterMark extends HudElement {
             FontRenderers.profont.drawString(context.getMatrices(), info, getPosX() + 2.7, getPosY() + 2.953, HudEditor.textColor.getValue().getColor());
             setBounds(getPosX(), getPosY(), width, 8);
         } else {
-            FontRenderers.monsterrat.drawGradientString(context.getMatrices(), "Exploticore vdsc.gg/exploitcore", getPosX() + 5.5f, getPosY() + 5, 10);
+            FontRenderers.monsterrat.drawGradientString(context.getMatrices(), "NanoCore", getPosX() + 5.5f, getPosY() + 5, 10);
             setBounds(getPosX(), getPosY(), 100, 3);
         }
     }

@@ -10,6 +10,7 @@ import net.minecraft.screen.slot.SlotActionType;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Direction;
+import net.minecraft.util.math.MathHelper;
 import thunder.hack.core.Core;
 import thunder.hack.core.manager.client.ModuleManager;
 import thunder.hack.events.impl.*;
@@ -237,8 +238,7 @@ public class TargetStrafe extends Module {
         if (e.getPacket() instanceof PlayerPositionLookS2CPacket) {
             oldSpeed = 0;
         }
-        EntityVelocityUpdateS2CPacket velocity;
-        if (e.getPacket() instanceof EntityVelocityUpdateS2CPacket && (velocity = e.getPacket()).getId() == mc.player.getId() && boost.getValue() == Boost.Damage) {
+        if (e.getPacket() instanceof EntityVelocityUpdateS2CPacket velocity && velocity.getEntityId() == mc.player.getId() && boost.getValue() == Boost.Damage) {
             if (mc.player.isOnGround()) return;
 
             double vX = velocity.getVelocityX();
@@ -248,7 +248,7 @@ public class TargetStrafe extends Module {
             if (vZ < 0) vZ *= -1;
 
             oldSpeed = (vX + vZ) / (velReduction.getValue() * 1000f);
-            oldSpeed = Math.min(oldSpeed, maxVelocitySpeed.getValue());
+            oldSpeed = net.minecraft.util.math.MathHelper.clamp((float) oldSpeed, 0f, maxVelocitySpeed.getValue());
 
             ((ISPacketEntityVelocity) velocity).setMotionX(0);
             ((ISPacketEntityVelocity) velocity).setMotionY(0);

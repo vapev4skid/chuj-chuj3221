@@ -3,9 +3,7 @@ package thunder.hack.core.manager.client;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import org.apache.commons.compress.utils.Lists;
-import thunder.hack.core.Managers;
 import thunder.hack.core.manager.IManager;
-import thunder.hack.features.modules.client.ClientSettings;
 import thunder.hack.utility.Timer;
 
 import java.net.URI;
@@ -15,7 +13,7 @@ import java.net.http.HttpResponse;
 import java.util.ArrayList;
 import java.util.List;
 
-import static thunder.hack.core.Managers.TELEMETRY;
+ 
 
 public class TelemetryManager implements IManager {
     private final Timer pingTimer = new Timer();
@@ -29,24 +27,12 @@ public class TelemetryManager implements IManager {
     }
 
     public void fetchData() {
-        if (ClientSettings.telemetry.getValue()) {
-            pingServer(mc.getSession().getUsername());
-        }
+        // Do not send username to any external telemetry endpoint
         onlinePlayers = getOnlinePlayersList();
         totalPlayers = getTotalPlayers();
     }
 
-    public void pingServer(String name) {
-        HttpRequest req = HttpRequest.newBuilder(URI.create("https://api.thunderhack.net/v1/users/online?name=" + name))
-                .POST(HttpRequest.BodyPublishers.noBody())
-                .build();
-
-        try {
-            HttpClient client = HttpClient.newHttpClient();
-            client.send(req, HttpResponse.BodyHandlers.ofString());
-        } catch (Exception ignored) {
-        }
-    }
+    // Removed username ping to external API
 
     public static int getTotalPlayers() {
         final HttpRequest request = HttpRequest.newBuilder(URI.create("https://plagai.org/apimimi/api?viev"))

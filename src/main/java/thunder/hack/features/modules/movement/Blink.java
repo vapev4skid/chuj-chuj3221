@@ -95,8 +95,11 @@ public class Blink extends Module {
 
     @EventHandler
     public void onPacketReceive(PacketEvent.Receive event) {
-        if (event.getPacket() instanceof EntityVelocityUpdateS2CPacket vel && vel.getId() == mc.player.getId() && disableOnVelocity.getValue())
+    if (event.getPacket() instanceof EntityVelocityUpdateS2CPacket) {
+        EntityVelocityUpdateS2CPacket vel = (EntityVelocityUpdateS2CPacket) event.getPacket();
+        if (vel.getEntityId() == mc.player.getId() && disableOnVelocity.getValue())
             disable(isRu() ? "Выключенно из-за велосити!" : "Disabled due to velocity!");
+    }
     }
 
     @EventHandler
@@ -211,4 +214,3 @@ public class Blink extends Module {
         }
     }
 }
-

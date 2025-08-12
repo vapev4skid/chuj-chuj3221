@@ -30,11 +30,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 public abstract class PlaceModule extends Module {
-    protected final Setting<Float> range = new Setting<>("Range", 5f, 0f, 7f);
-    protected final Setting<InteractionUtility.Interact> interact = new Setting<>("Interact", InteractionUtility.Interact.Strict);
+    protected final Setting<Float> range = new Setting<>("Range", 4.5f, 0f, 7f);
+    protected final Setting<InteractionUtility.Interact> interact = new Setting<>("Interact", InteractionUtility.Interact.Legit);
     protected final Setting<InteractMode> placeMode = new Setting<>("Place Mode", InteractMode.Normal);
     protected final Setting<InteractionUtility.Rotate> rotate = new Setting<>("Rotate", InteractionUtility.Rotate.None);
-    protected final Setting<Boolean> swing = new Setting<>("Swing", false);
+    protected final Setting<Boolean> swing = new Setting<>("Swing", true);
 
     protected final Setting<BooleanSettingGroup> crystalBreaker = new Setting<>("Crystal Breaker", new BooleanSettingGroup(false));
     protected final Setting<Integer> crystalAge = new Setting<>("CrystalAge", 0, 0, 20).addToGroup(crystalBreaker);

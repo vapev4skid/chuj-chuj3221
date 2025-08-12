@@ -330,7 +330,6 @@ public class AutoCrystal extends Module {
 
                 if (cr.squaredDistanceTo(bp.toCenterPos()) < 0.3) {
                     confirmTime = now - attempt.getTime();
-                    ModuleManager.autoCrystalInfo.onSpawn();
                     crystalManager.confirmSpawn(bp);
 
                     if (breakTimer.passedTicks(facePlacing ? lowBreakDelay.getValue() : breakDelay.getValue()))
@@ -345,10 +344,10 @@ public class AutoCrystal extends Module {
         if (mc.player == null || mc.world == null) return;
 
         if (e.getPacket() instanceof ExperienceOrbSpawnS2CPacket spawn)
-            processSpawnPacket(spawn.getId());
+            processSpawnPacket(spawn.getEntityId());
 
         if (e.getPacket() instanceof EntitySpawnS2CPacket spawn)
-            processSpawnPacket(spawn.getId());
+            processSpawnPacket(spawn.getEntityId());
 
         if (e.getPacket() instanceof ExplosionS2CPacket explosion) {
             for (Entity ent : Lists.newArrayList(mc.world.getEntities()))

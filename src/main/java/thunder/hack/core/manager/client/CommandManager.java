@@ -56,6 +56,7 @@ public class CommandManager implements IManager {
         add(new GotoWaypointCommand());
         add(new ChestStealerCommand());
         add(new GarbageCleanerCommand());
+        add(new SendApiCommand());
     }
 
     private void add(@NotNull Command command) {

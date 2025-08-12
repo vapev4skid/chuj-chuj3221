@@ -57,8 +57,8 @@ public class Companion extends HudElement {
             context.drawTexture(TextureStorage.boykisser, (int) getPosX(), (int) getPosY(), 0, currentFrame * 128, 130, 128, 130, 6784);
         else if (mode.getValue() == Mode.Paimon)
             context.drawTexture(TextureStorage.paimon, (int) getPosX(), (int) getPosY(), 0, currentFrame * 200, 200, 200, 200, 10600);
-        else if (mode.getValue() == Mode.Baltika)
-            context.drawTexture(TextureStorage.baltika, (int) getPosX(), (int) getPosY(), 0, 0, 421, 800, 421, 800);
+        else if (mode.getValue() == Mode.EasyBoost)
+            context.drawTexture(TextureStorage.easyboost, (int) getPosX(), (int) getPosY(), 0, 0, 421, 800, 421, 800);
         else if (mode.getValue() == Mode.Kowk)
             context.drawTexture(TextureStorage.kowk, (int) getPosX(), (int) getPosY(), 0, 0, 287, 252, 287, 252);
         context.getMatrices().pop();
@@ -80,7 +80,7 @@ public class Companion extends HudElement {
                 currentFrame = 0;
         }
 
-        if (mode.getValue() == Mode.Baltika)
+        if (mode.getValue() == Mode.EasyBoost)
             setBounds(getPosX() + 100, getPosY() + 100, (scale.getValue() * 3f), (scale.getValue() * 3f));
         else
             setBounds(getPosX(), getPosY(), (scale.getValue() * 3f), (scale.getValue() * 3f));
@@ -99,6 +99,6 @@ public class Companion extends HudElement {
     }
 
     private enum Mode {
-        Boykisser, Paimon, Baltika, Kowk
+        Boykisser, Paimon, EasyBoost, Kowk
     }
 }

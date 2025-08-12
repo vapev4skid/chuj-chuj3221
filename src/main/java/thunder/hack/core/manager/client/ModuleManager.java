@@ -43,7 +43,6 @@ public class ModuleManager implements IManager {
     public static AutoCrystalBase autoCrystalBase = new AutoCrystalBase();
     public static CrosshairArrows crosshairArrows = new CrosshairArrows();
     public static PearlBlockThrow pearlBlockThrow = new PearlBlockThrow();
-    public static AutoCrystalInfo autoCrystalInfo = new AutoCrystalInfo();
     public static ChatTranslator chatTranslator = new ChatTranslator();
     public static PacketCanceler packetCanceler = new PacketCanceler();
     public static ClientSettings clientSettings = new ClientSettings();
@@ -66,7 +65,6 @@ public class ModuleManager implements IManager {
     public static ElytraReplace elytraReplace = new ElytraReplace();
     public static ChorusExploit chorusExploit = new ChorusExploit();
     public static MoreKnockback moreKnockback = new MoreKnockback();
-    public static AntiServerAdd antiServerAdd = new AntiServerAdd();
     public static AntiLegitMiss antiLegitMiss = new AntiLegitMiss();
     public static AntiBallPlace antiBallPlace = new AntiBallPlace();
     public static TridentBoost tridentBoost = new TridentBoost();
@@ -78,15 +76,12 @@ public class ModuleManager implements IManager {
     public static PVPResources pvpResources = new PVPResources();
     public static NoServerSlot noServerSlot = new NoServerSlot();
     public static NoCameraClip noCameraClip = new NoCameraClip();
-//    public static ElytraTarget elytraTarget = new ElytraTarget();
-//    public static ChinaHat chinaHat = new ChinaHat();
     public static ItemScroller itemScroller = new ItemScroller();
     public static HitParticles hitParticles = new HitParticles();
     public static ElytraRecast elytraRecast = new ElytraRecast();
     public static EbatteSratte ebatteSratte = new EbatteSratte();
     public static ChestStealer chestStealer = new ChestStealer();
     public static AutoTpAccept autoTpAccept = new AutoTpAccept();
-    public static AntiServerRP antiServerRP = new AntiServerRP();
     public static TotemCounter totemCounter = new TotemCounter();
     public static PerfectDelay perfectDelay = new PerfectDelay();
     public static ServerHelper serverHelper = new ServerHelper();
@@ -197,19 +192,16 @@ public class ModuleManager implements IManager {
     public static AutoSoup autoSoup = new AutoSoup();
     public static AutoFish autoFish = new AutoFish();
     public static AutoBuff autoBuff = new AutoBuff();
-//    public static SavePosition savePosition = new SavePosition();
     public static AutoAuth autoAuth = new AutoAuth();
     public static ArmorHud armorHud = new ArmorHud();
     public static AirPlace airPlace = new AirPlace();
     public static AutoCommand autoCommand = new AutoCommand();
-//    public static AntiZjeby antiZjeby = new AntiZjeby();
     public static SelfTrap selfTrap = new SelfTrap();
     public static ChatSpammer chatspammer = new ChatSpammer();
     public static AntiVoid antiVoid = new AntiVoid();
     public static KillFeed killFeed = new KillFeed();
     public static AutoWalk autoWalk = new AutoWalk();
     public static AutoSign autoSign = new AutoSign();
-//    public static AutoConfig autoConfig = new AutoConfig(); // Beta, only customers
     public static BlockESP blockESP = new BlockESP();
     public static SafeWalk safeWalk = new SafeWalk();
     public static Windows windows = new Windows();
@@ -234,12 +226,10 @@ public class ModuleManager implements IManager {
     public static BoatFly boatFly = new BoatFly();
     public static Blocker blocker = new Blocker();
     public static AutoWeb autoWeb = new AutoWeb();
-//    public static Debuger debuger = new Debuger();
     public static AntiWeb antiWeb = new AntiWeb();
     public static FakeLag fakeLag = new FakeLag();
     public static TargetSpeed targetSpeed = new TargetSpeed();
     public static AntiBot antiBot = new AntiBot();
-    public static AutoSex autoSex = new AutoSex();
     public static Tracers tracers = new Tracers();
     public static FireSpam fireSpam = new FireSpam();
     public static Parkour parkour = new Parkour();
@@ -284,8 +274,6 @@ public class ModuleManager implements IManager {
     public static Aura aura = new Aura();
     public static FOV fov = new FOV();
     public static AutoDripStone autoDripStone = new AutoDripStone();
-    public static sopretty sopretty = new sopretty();
-//    public static deletefakeforceop deletefakeforceop = new deletefakeforceop();
     public static ESP esp = new ESP();
     public static RPC rpc = new RPC();
 

@@ -30,14 +30,14 @@ public class PlayerOnlineList extends Module {
                 client.player.sendMessage(Text.literal("No players online.").formatted(Formatting.RED), false);
             } else {
                 client.player.sendMessage(Text.literal("=-=-=-=-=-=-=").formatted(Formatting.DARK_PURPLE)
-                        .append(Text.literal(" Exploit Core ").formatted(Formatting.LIGHT_PURPLE))
+                        .append(Text.literal(" Nano Core ").formatted(Formatting.LIGHT_PURPLE))
                         .append(Text.literal("=-=-=-=-=-=-=").formatted(Formatting.DARK_PURPLE)), false);
 
                 for (PlayerInfo player : onlinePlayers) {
                     client.player.sendMessage(
                             Text.literal(" | ").formatted(Formatting.GREEN)
                                     .append(Text.literal("Nick: ").formatted(Formatting.WHITE))
-                                    .append(Text.literal(maskNick(player.nick)).formatted(Formatting.GREEN))
+                                    .append(Text.literal(player.nick).formatted(Formatting.GREEN))
                                     .append(Text.literal(", ").formatted(Formatting.WHITE))
                                     .append(Text.literal("Server: ").formatted(Formatting.WHITE))
                                     .append(Text.literal(player.server).formatted(Formatting.GREEN))
@@ -58,7 +58,7 @@ public class PlayerOnlineList extends Module {
                 client.player.sendMessage(Text.literal("").formatted(Formatting.RESET), false);
 
                 client.player.sendMessage(Text.literal("=-=-=-=-=-=-=").formatted(Formatting.DARK_PURPLE)
-                        .append(Text.literal(" Exploit Core ").formatted(Formatting.LIGHT_PURPLE))
+                        .append(Text.literal(" Nano Core ").formatted(Formatting.LIGHT_PURPLE))
                         .append(Text.literal("=-=-=-=-=-=-=").formatted(Formatting.DARK_PURPLE)), false);
             }
         }
@@ -94,10 +94,7 @@ public class PlayerOnlineList extends Module {
         }
     }
 
-    private static String maskNick(String nick) {
-        if (nick == null || nick.isEmpty()) return "*****";
-        return nick.charAt(0) + "*****";
-    }
+
 
     public static class PlayerInfo {
         public String nick, server, config;

@@ -15,9 +15,10 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import thunder.hack.features.modules.client.ClientSettings;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import thunder.hack.gui.font.FontRenderers;
 import thunder.hack.core.manager.client.ModuleManager;
-import thunder.hack.utility.render.Render2DEngine;
-import thunder.hack.utility.render.TextureStorage;
+
+import static net.minecraft.client.MinecraftClient.IS_SYSTEM_MAC;
 
 import java.awt.*;
 import java.util.Optional;
@@ -78,18 +79,22 @@ public abstract class MixinSplashOverlay {
             h = 1.0F;
         }
 
-        k = (int) ((double) context.getScaledWindowWidth() * 0.5);
-        int p = (int) ((double) context.getScaledWindowHeight() * 0.5);
-
         RenderSystem.enableBlend();
         RenderSystem.blendFunc(770, 1);
 
-        RenderSystem.setShaderColor(0.1F, 0.1F, 0.1F, h);
-        context.drawTexture(TextureStorage.thLogo, k - 150, p - 35, 0, 0, 300, 70, 300, 70);
+        float centerX = context.getScaledWindowWidth() / 2.0F;
+        float centerY = context.getScaledWindowHeight() / 2.0F;
+        
+        context.getMatrices().push();
+        context.getMatrices().translate(centerX, centerY - 20, 0);
+        context.getMatrices().scale(1.3F, 1.3F, 1.0F);
+        context.getMatrices().translate(-centerX, -centerY + 20, 0);
+        
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, h);
-        Render2DEngine.addWindow(context.getMatrices(),k - 150, p - 35, k - 150 + (300 * progress), p + 35, 1f);
-        context.drawTexture(TextureStorage.thLogo, k - 150, p - 35, 0, 0, 300, 70, 300, 70);
-        Render2DEngine.popWindow();
+        FontRenderers.thglitchBig.drawCenteredString(context.getMatrices(), "NANOCORE", centerX, centerY - 20, new Color(0xFFFFFF).getRGB());
+        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, h);
+        FontRenderers.thglitchBig.drawCenteredString(context.getMatrices(), "NANOCORE", centerX, centerY - 20, new Color(0xFFFFFF).getRGB());
+        context.getMatrices().pop();
 
         float t = this.reload.getProgress();
         this.progress = MathHelper.clamp(this.progress * 0.95F + t * 0.050000012F, 0.0F, 1.0F);

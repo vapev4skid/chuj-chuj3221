@@ -139,7 +139,21 @@ public class SoundManager implements IManager {
     }
 
     public void playCritSound() {
-        playSound(CRIT_SOUNDEVENT);
+        // Use custom sound approach to avoid conflicts with Minecraft sounds
+        try {
+            Clip clip = AudioSystem.getClip();
+            clip.open(AudioSystem.getAudioInputStream(new File(SOUNDS_FOLDER, "crit.wav").getAbsoluteFile()));
+            FloatControl floatControl = (FloatControl) clip.getControl(FloatControl.Type.MASTER_GAIN);
+            floatControl.setValue((floatControl.getMaximum() - floatControl.getMinimum() * ((float) ModuleManager.soundFX.volume.getValue() / 100f)) + floatControl.getMinimum());
+            clip.start();
+        } catch (Exception e) {
+            // Fallback to the original method if custom sound file doesn't exist
+            if (mc.player != null && mc.world != null) {
+                // Use a different sound category and lower volume to avoid conflicts
+                mc.world.playSound(mc.player, mc.player.getBlockPos(), CRIT_SOUNDEVENT, SoundCategory.PLAYERS, 
+                    (float) ModuleManager.soundFX.volume.getValue() / 200f, 0.8f); // Lower volume and pitch
+            }
+        }
     }
 
     public void playEnable() {

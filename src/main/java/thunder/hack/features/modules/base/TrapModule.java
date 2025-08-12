@@ -21,16 +21,19 @@ import java.util.List;
 
 public abstract class TrapModule extends PlaceModule {
     protected final Setting<PlaceTiming> placeTiming = new Setting<>("Place Timing", PlaceTiming.Default);
-    protected final Setting<Integer> blocksPerTick = new Setting<>("Block/Tick", 8, 1, 12, v -> placeTiming.getValue() == PlaceTiming.Default);
-    protected final Setting<Integer> placeDelay = new Setting<>("Delay/Place", 3, 0, 10);
+    protected final Setting<Integer> blocksPerTick = new Setting<>("Block/Tick", 4, 1, 12, v -> placeTiming.getValue() == PlaceTiming.Default);
+    protected final Setting<Integer> placeDelay = new Setting<>("Delay/Place", 1, 0, 10);
     protected final Setting<TrapMode> trapMode = new Setting<>("Trap Mode", TrapMode.Full);
     protected final Setting<Boolean> noPost = new Setting<>("NoPost", false);
     protected final Setting<Boolean> noFlyPlace = new Setting<>("NoFlyPlace", false);
     protected final Setting<Float> motionThreshold = new Setting<>("Motion Threshold", 0.01f, 0.001f, 0.1f);
+    protected final Setting<Boolean> antiPattern = new Setting<>("Anti Pattern", false);
+    protected final Setting<Integer> maxBlocksPerTarget = new Setting<>("Max Blocks Per Target", 8, 1, 20, v -> antiPattern.getValue());
 
     private int delay;
     protected PlayerEntity target;
     private final ArrayList<BlockPos> sequentialBlocks = new ArrayList<>();
+    private int blocksPlacedOnCurrentTarget = 0;
 
     public TrapModule(@NotNull String name, @NotNull Category category) {
         super(name, category);
@@ -51,6 +54,7 @@ public abstract class TrapModule extends PlaceModule {
     private void onSync(EventSync event) {
         if (needNewTarget()) {
             target = getTarget();
+            blocksPlacedOnCurrentTarget = 0; // Reset counter for new target
             return;
         }
 
@@ -109,8 +113,15 @@ public abstract class TrapModule extends PlaceModule {
             while (placed < blocksPerTick.getValue()) {
                 BlockPos targetBlock = getBlockToPlace();
                 if (targetBlock == null) break;
+                
+                // Anti-pattern check
+                if (antiPattern.getValue() && blocksPlacedOnCurrentTarget >= maxBlocksPerTarget.getValue()) {
+                    break;
+                }
+                
                 if (placeBlock(targetBlock, rotateMod)) {
                     placed++;
+                    blocksPlacedOnCurrentTarget++;
                     delay = placeDelay.getValue();
                     inactivityTimer.reset();
                 } else break;
@@ -119,8 +130,14 @@ public abstract class TrapModule extends PlaceModule {
             BlockPos targetBlock = getBlockToPlace();
 
             if (targetBlock != null) {
+                // Anti-pattern check
+                if (antiPattern.getValue() && blocksPlacedOnCurrentTarget >= maxBlocksPerTarget.getValue()) {
+                    return;
+                }
+                
                 if (placeBlock(targetBlock, rotateMod)) {
                     sequentialBlocks.add(targetBlock);
+                    blocksPlacedOnCurrentTarget++;
                     delay = placeDelay.getValue();
                     inactivityTimer.reset();
                 }

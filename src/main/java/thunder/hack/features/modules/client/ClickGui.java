@@ -6,7 +6,6 @@ import net.minecraft.util.Identifier;
 import thunder.hack.ThunderHack;
 import thunder.hack.events.impl.EventSetting;
 import thunder.hack.gui.clickui.ClickGUI;
-import thunder.hack.gui.font.FontRenderers;
 import thunder.hack.features.modules.Module;
 import thunder.hack.setting.Setting;
 import thunder.hack.setting.impl.BooleanSettingGroup;
@@ -23,8 +22,9 @@ public class ClickGui extends Module {
     public final Setting<Image> image = new Setting<>("Image", Image.None);
     public final Setting<Integer> moduleWidth = new Setting<>("ModuleWidth", 100, 50, 200);
     public final Setting<Integer> moduleHeight = new Setting<>("ModuleHeight", 14, 8, 25);
-    public final Setting<Integer> settingFontScale = new Setting<>("SettingFontScale", 12, 6, 24);
-    public final Setting<Integer> modulesFontScale = new Setting<>("ModulesFontScale", 14, 6, 24);
+    public final Setting<ClientSettings.FontType> settingsFont = new Setting<>("SettingsFont", ClientSettings.FontType.Settings);
+    public final Setting<ClientSettings.FontType> categoriesFont = new Setting<>("CategoriesFont", ClientSettings.FontType.Categories);
+    public final Setting<ClientSettings.FontType> modulesFont = new Setting<>("ModulesFont", ClientSettings.FontType.Modules);
     public static final Setting<BooleanSettingGroup> gear = new Setting<>("Gear", new BooleanSettingGroup(true));
     public final Setting<Integer> gearScale = new Setting<>("GearScale", 60, 6, 300).addToGroup(gear);
     public static Setting<Float> gearDuration = new Setting<>("GearDuration", 0.5f, 0.1f, 2f).addToGroup(gear);
@@ -63,12 +63,6 @@ public class ClickGui extends Module {
     @EventHandler
     public void onSetting(EventSetting e) {
         try {
-            if (e.getSetting() == settingFontScale)
-                FontRenderers.sf_medium_mini = FontRenderers.create(settingFontScale.getValue(), "sf_medium");
-
-            if (e.getSetting() == modulesFontScale)
-                FontRenderers.sf_medium_modules = FontRenderers.create(modulesFontScale.getValue(), "sf_medium");
-
             if (e.getSetting() == image)
                 ClickGUI.getClickGui().imageAnimation.reset();
         } catch (Exception ignored) {
@@ -103,17 +97,8 @@ public class ClickGui extends Module {
 
     public enum Image {
         None("", 0, 0, new int[]{0, 0}, 0),
-        Bdsm("bdsm.png", 1414, 823, new int[]{-100, 90}, 900),
-        Cutie("cutie.png", 476, 490, new int[]{500, 60}, 500),
-        Cutie2("cutie2.png", 540, 540, new int[]{500, 60}, 500),
-        Nya("nya.png", 246, 238, new int[]{500, 60}, 500),
-        Smile("smile.png", 324, 406, new int[]{500, 40}, 500),
-        Bat("bat.png", 352, 503, new int[]{500, 40}, 500),
         Gacha("gacha.png", 592, 592, new int[]{500, 60}, 500),
-        mimi("mimi.png", 592, 592, new int[]{500, 60}, 300),
-        mimitokox("mimitokox.png", 246, 238, new int[]{500, 60}, 500),
-        NFT("nft.png", 562, 494, new int[]{400, 110}, 500),
-        ThousandSeven("thousand_seven.png", 380, 336, new int[]{400, 130}, 500);
+        mimitokox("mimitokox.png", 246, 238, new int[]{500, 60}, 500);
 
         public final int fileWidth;
         public final int fileHeight;

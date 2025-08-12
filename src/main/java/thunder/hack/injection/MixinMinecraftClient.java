@@ -44,15 +44,14 @@ import static thunder.hack.features.modules.Module.mc;
 @Mixin(MinecraftClient.class)
 public abstract class MixinMinecraftClient {
 
-    @Shadow
-    @Final
+    @Shadow @Final
     private Window window;
 
     @Shadow
     public abstract void setScreen(@Nullable Screen screen);
 
     @Unique
-    private String[] shittyServers = {
+    private final String[] shittyServers = {
             "mineblaze",
             "musteryworld",
             "dexland",
@@ -101,7 +100,6 @@ public abstract class MixinMinecraftClient {
         WindowResizeCallback.EVENT.invoker().onResized((MinecraftClient) (Object) this, this.window);
     }
 
-
     @Inject(method = "doItemPick", at = @At("HEAD"), cancellable = true)
     private void doItemPickHook(CallbackInfo ci) {
         if (ModuleManager.middleClick.isEnabled() && ModuleManager.middleClick.antiPickUp.getValue())
@@ -110,8 +108,8 @@ public abstract class MixinMinecraftClient {
 
     @Inject(method = "setOverlay", at = @At("HEAD"))
     public void setOverlay(Overlay overlay, CallbackInfo ci) {
-        //   if (overlay instanceof SplashOverlay)
-        //  Managers.SHADER.reloadShaders();
+        // if (overlay instanceof SplashOverlay)
+        // Managers.SHADER.reloadShaders();
     }
 
     @Inject(method = "setScreen", at = @At("HEAD"), cancellable = true)
@@ -125,13 +123,15 @@ public abstract class MixinMinecraftClient {
     @Inject(method = "setScreen", at = @At("RETURN"))
     public void setScreenHookPost(Screen screen, CallbackInfo ci) {
         if (Module.fullNullCheck()) return;
-        if (screen instanceof MultiplayerScreen mScreen && ModuleManager.antiServerAdd.isEnabled() && mScreen.getServerList() != null) {
-            for (int i = 0; i < mScreen.getServerList().size(); i++) {
-                ServerInfo info = mScreen.getServerList().get(i);
+
+        if (screen instanceof MultiplayerScreen multiplayerScreen) {
+            for (int i = 0; i < multiplayerScreen.getServerList().size(); i++) {
+                ServerInfo info = multiplayerScreen.getServerList().get(i);
                 for (String server : shittyServers) {
-                    if (info != null && info.address != null && info.address.toLowerCase().contains(server.toLowerCase())) {
-                        mScreen.getServerList().remove(info);
-                        mScreen.getServerList().saveFile();
+                    if (info != null && info.address != null &&
+                            info.address.toLowerCase().contains(server.toLowerCase())) {
+                        multiplayerScreen.getServerList().remove(info);
+                        multiplayerScreen.getServerList().saveFile();
                         setScreen(screen);
                         break;
                     }
@@ -140,16 +140,15 @@ public abstract class MixinMinecraftClient {
         }
     }
 
-    @Redirect(method = "<init>", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/util/Window;setIcon(Lnet/minecraft/resource/ResourcePack;Lnet/minecraft/client/util/Icons;)V"))
+    @Redirect(method = "<init>", at = @At(value = "INVOKE",
+            target = "Lnet/minecraft/client/util/Window;setIcon(Lnet/minecraft/resource/ResourcePack;Lnet/minecraft/client/util/Icons;)V"))
     private void onChangeIcon(Window instance, ResourcePack resourcePack, Icons icons) throws IOException {
-        // RenderSystem.assertInInitPhase();
-
         if (GLFW.glfwGetPlatform() == 393218) {
             MacWindowUtil.setApplicationIconImage(icons.getMacIcon(resourcePack));
             return;
         }
-
-        setWindowIcon(ThunderHack.class.getResourceAsStream("/icon.png"), ThunderHack.class.getResourceAsStream("/icon.png"));
+        setWindowIcon(ThunderHack.class.getResourceAsStream("/icon.png"),
+                ThunderHack.class.getResourceAsStream("/icon.png"));
     }
 
     public void setWindowIcon(InputStream img16x16, InputStream img32x32) {

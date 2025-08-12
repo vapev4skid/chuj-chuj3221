@@ -122,7 +122,7 @@ public class ACDetector extends Module {
             }
         }
         if (e.getPacket() instanceof EntityVelocityUpdateS2CPacket packet) {
-            if (packet.getId() == mc.player.getId() && gotHit) {
+            if (packet.getEntityId() == mc.player.getId() && gotHit) {
                 expectingVelocity = true;
                 lastVelocityTick = mc.player.age;
                 gotHit = false;

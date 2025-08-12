@@ -22,6 +22,11 @@ public final class ClientSettings extends Module {
     public static Setting<String> prefix = new Setting<>("Prefix", "@");
     public static Setting<ClipCommandMode> clipCommandMode = new Setting<>("ClipCommandMode", ClipCommandMode.Matrix);
     public static Setting<ColorSetting> auraESPColor = new Setting<>("AuraESPColor", new ColorSetting(new Color(255, 0, 0, 255)));
+    
+    // Font settings
+    public static Setting<FontType> guiFont = new Setting<>("GUIFont", FontType.SF_Medium);
+    public static Setting<FontType> hudFont = new Setting<>("HUDFont", FontType.SF_Bold);
+    public static Setting<FontType> moduleFont = new Setting<>("ModuleFont", FontType.Modules);
 
     public enum Language {
         RU,
@@ -31,6 +36,26 @@ public final class ClientSettings extends Module {
     public enum ClipCommandMode {
         Default,
         Matrix
+    }
+    
+    public enum FontType {
+        SF_Medium,
+        SF_Bold,
+        SF_Bold_Mini,
+        SF_Bold_Micro,
+        SF_Medium_Mini,
+        SF_Medium_Modules,
+        Monsterrat,
+        Minecraft,
+        ProFont,
+        Icons,
+        Mid_Icons,
+        Big_Icons,
+        THGlitch,
+        THGlitchBig,
+        Settings,
+        Categories,
+        Modules
     }
 
     public ClientSettings() {
